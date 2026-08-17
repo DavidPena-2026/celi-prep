@@ -1,0 +1,3758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Céilí Prep — Irish Dancing Test Practice</title>
+<meta name="description" content="Practice Irish céilí dance movements, bar counts, and set-dance music for the CLRG knowledge test.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Palette drawn from the source book itself: the deep purple/gold
+   cover of "Ár Rincí Céilí" and its warm cream pages — not a generic
+   green-shamrock treatment.
+   ============================================================ */
+:root {
+  --ink:          #241626;
+  --plum:         #3B1F4D;
+  --plum-deep:    #2A1638;
+  --plum-tint:    #EFE7F1;
+  --brass:        #A8802F;
+  --brass-light:  #D9BC72;
+  --thread:       #A8433D;
+  --thread-tint:  #F5E4E1;
+  --leaf:         #4C6B4F;
+  --leaf-tint:    #E6EDE3;
+  --paper:        #FBF7EF;
+  --paper-raised: #F3ECDC;
+  --line:         #DDD2BC;
+  --reading-wash: #F3E4D3; /* warm parchment tint — Reading Mode's own environment color, distinct from Home's plain --paper */
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(36, 22, 38, 0.06), 0 6px 20px rgba(36, 22, 38, 0.07);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(59,31,77,0.05) 1px, transparent 0);
+  background-size: 22px 22px;
+  transition: background-color 0.2s ease;
+}
+/* Each mode gets its own subtle environment tint (not just its header) —
+   set once, centrally, via a data-attribute the router toggles, rather
+   than threading a class through every individual screen. Home/no-mode
+   stays the plain --paper background. */
+body[data-mode="reading"] { background-color: #FAF2E7; }
+body[data-mode="music"] { background-color: #FAF8FB; }
+
+#app { min-height: 100vh; }
+
+a { color: inherit; }
+
+::selection { background: var(--brass-light); color: var(--ink); }
+
+:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------------- Layout shells ---------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--plum);
+  color: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--shadow);
+}
+
+.topbar__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: var(--paper);
+}
+.topbar__brand small {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--brass-light);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Reorganize, don't just shrink: on phone widths the subtitle is pure
+   branding (not information the user needs), so it hides to keep the
+   brand line compact and clean. */
+@media (max-width: 480px) {
+  .topbar { padding: 12px 14px; gap: 8px; }
+  .topbar__brand small { display: none; }
+  .topbar__brand { font-size: 1rem; }
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 20px 80px;
+}
+/* Tighten the gap when a page immediately follows a mode banner — the
+   banner already provides strong vertical presence, so the back button
+   and content below it shouldn't float with another full measure of
+   whitespace on top of that. */
+.mode-banner + .page { padding-top: 18px; }
+
+.crumb {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brass);
+  margin-bottom: 8px;
+}
+.crumb--reading { color: var(--thread); }
+
+/* Global Back control — same treatment everywhere it appears (every screen
+   except the home landing page, where there's nowhere meaningful to go
+   back to). Deliberately neutral/plum, not mode-colored, since it's shared
+   navigation chrome rather than mode-specific content. */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--plum);
+  background: transparent;
+  border: none;
+  padding: 6px 4px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.back-button span { font-size: 1.05em; line-height: 1; }
+.back-button:hover { background: var(--plum-tint); }
+.back-button:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; }
+
+h1.page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  margin: 0 0 6px;
+  color: var(--plum-deep);
+}
+
+p.page-lede {
+  font-size: 1.02rem;
+  color: #52424E;
+  max-width: 62ch;
+  margin: 0 0 28px;
+}
+
+/* ---------------- Home screen ---------------- */
+
+.hero {
+  text-align: center;
+  padding: 56px 20px 40px;
+}
+.hero .crumb { text-align: center; }
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  margin: 6px 0 12px;
+  color: var(--plum-deep);
+  font-weight: 600;
+}
+.hero p {
+  max-width: 56ch;
+  margin: 0 auto;
+  color: #52424E;
+  font-size: 1.05rem;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  max-width: 900px;
+  margin: 36px auto 0;
+  padding: 0 20px;
+}
+@media (max-width: 680px) {
+  .mode-grid { grid-template-columns: 1fr; }
+}
+
+.mode-card {
+  position: relative;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 30px 26px 26px;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  font-family: var(--font-body);
+}
+.mode-card:hover, .mode-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.mode-card--music {
+  border-top: 4px solid var(--brass);
+  background: linear-gradient(180deg, rgba(168,128,47,0.09) 0%, var(--paper-raised) 90px);
+}
+.mode-card--reading {
+  border-top: 4px solid var(--thread);
+  background: linear-gradient(180deg, rgba(168,67,61,0.08) 0%, var(--paper-raised) 90px);
+}
+
+/* Generic decorative border variants for card pairs that AREN'T the actual
+   Music/Reading mode distinction (e.g. the Easy/Hard difficulty picker) —
+   kept visually similar but semantically separate so strengthening the
+   real mode colors above never bleeds into unrelated UI. */
+.mode-card--accent-brass { border-top: 4px solid var(--brass); }
+.mode-card--accent-brass .mode-card__cta { color: var(--brass); }
+.mode-card--accent-thread { border-top: 4px solid var(--thread); }
+.mode-card--accent-thread .mode-card__cta { color: var(--thread); }
+
+/* Reading Mode's Easy/Hard choice deliberately does NOT reuse Home's exact
+   card language (top-colored-border, cream fill) — a left accent bar on a
+   plain white card reads as "pick one of these options within Reading
+   Mode" rather than "pick a whole different mode", keeping the Home vs.
+   Mode vs. Activity distinction visually honest even though both use the
+   same underlying .mode-card component. */
+.reading-choice-grid .mode-card {
+  border-top: none;
+  border-left: 5px solid var(--line);
+  background: #fff;
+  padding-left: 22px;
+}
+.reading-choice-grid .mode-card--accent-thread { border-left-color: var(--thread); }
+.reading-choice-grid .mode-card--accent-brass { border-left-color: var(--brass); }
+
+.mode-card__title {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 600;
+  margin: 6px 0 8px;
+  color: var(--plum-deep);
+}
+.mode-card__tagline {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.mode-card__desc {
+  color: #574A55;
+  font-size: 0.96rem;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.mode-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--plum);
+}
+.mode-card--music .mode-card__cta { color: var(--brass); }
+.mode-card--reading .mode-card__cta { color: var(--thread); }
+
+.mode-card__icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.mode-card__icon svg { width: 22px; height: 22px; }
+.mode-card--music .mode-card__icon { background: var(--brass-light); color: var(--plum-deep); }
+.mode-card--reading .mode-card__icon { background: var(--thread-tint); color: var(--thread); }
+
+/* ---------------- Mode banner (Music Mode / Reading Mode "you are here"
+   header) ----------------
+   This is the strongest single signal that the user has left the Home
+   dashboard and entered a dedicated environment — a full-width colored
+   band, not just recolored text. Deliberately used ONLY on each mode's own
+   landing screen (Listen & Identify / Study picker), not on every deeper
+   activity screen — activities get a lighter accent instead (see
+   .activity-accent below), so the hierarchy Home -> Mode -> Activity reads
+   as three genuinely different levels rather than the same banner
+   repeated everywhere. */
+.mode-banner {
+  /* Sits as a full-width sibling of .page (not nested inside its padding),
+     so no negative margin is needed to bleed to the edges — it's already
+     edge-to-edge. (A negative side margin here was the mobile overflow
+     bug: with no ancestor padding to cancel, it pushed the banner past
+     the viewport instead of flush with it.) */
+  padding: 34px 20px 26px;
+  text-align: center;
+}
+.mode-banner__icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.mode-banner__icon svg { width: 26px; height: 26px; }
+.mode-banner__eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase;
+  letter-spacing: 0.12em; margin-bottom: 8px;
+}
+.mode-banner__title {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  margin: 0 0 10px;
+}
+.mode-banner__subtitle {
+  font-size: 1rem; max-width: 52ch; margin: 0 auto;
+}
+
+.mode-banner--music {
+  background: linear-gradient(180deg, var(--plum) 0%, var(--plum-deep) 100%);
+}
+.mode-banner--music .mode-banner__icon { background: var(--brass-light); color: var(--plum-deep); }
+.mode-banner--music .mode-banner__eyebrow { color: var(--brass-light); }
+.mode-banner--music .mode-banner__title { color: var(--paper); }
+.mode-banner--music .mode-banner__subtitle { color: rgba(251,247,239,0.82); }
+
+.mode-banner--reading {
+  background: var(--reading-wash, #F3E4D3);
+  border-bottom: 3px solid var(--thread);
+}
+.mode-banner--reading .mode-banner__icon { background: var(--thread); color: var(--paper); }
+.mode-banner--reading .mode-banner__eyebrow { color: var(--thread); }
+.mode-banner--reading .mode-banner__title { color: var(--plum-deep); }
+.mode-banner--reading .mode-banner__subtitle { color: #6b5142; }
+
+@media (max-width: 640px) {
+  .mode-banner { padding: 26px 14px 20px; }
+}
+
+/* Lighter, activity-level mode accent — a slim colored rule at the top of
+   the content area plus a matching crumb color (crumb color already
+   handled elsewhere), so deep activity screens still quietly say "you're
+   in Music/Reading Mode" without repeating the big banner treatment. This
+   is what makes Activity feel like a distinct third level rather than a
+   copy of the Mode page. Applied directly on .page itself (see page()),
+   so it must NOT touch margin — .page already centers itself with
+   margin:0 auto and this can't fight that. */
+.activity-accent { border-top: 3px solid transparent; }
+.activity-accent--music { border-top-color: var(--brass); }
+.activity-accent--reading { border-top-color: var(--thread); }
+
+/* ---------------- Buttons ---------------- */
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--plum);
+  background: var(--plum);
+  color: var(--paper);
+  padding: 10px 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn:hover { background: var(--plum-deep); }
+.btn--ghost {
+  background: transparent;
+  color: var(--plum);
+}
+.btn--ghost:hover { background: var(--plum-tint); }
+.btn--brass { background: var(--brass); border-color: var(--brass); color: var(--ink); }
+.btn--brass:hover { background: #8f6c25; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+/* ---------------- Cards / lists ---------------- */
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 22px 0 34px;
+}
+.tile {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.tile:hover { border-color: var(--brass); }
+.tile__num { font-family: var(--font-mono); font-size: 0.72rem; color: var(--brass); }
+.tile__irish { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; color: var(--plum-deep); margin: 4px 0 2px; }
+.tile__english { font-size: 0.85rem; color: #6b5c67; }
+
+/* ---------------- Dance detail ---------------- */
+
+.dance-header {
+  border-bottom: 2px solid var(--brass-light);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+.dance-header__irish { font-family: var(--font-display); font-size: 2rem; font-weight: 600; color: var(--plum-deep); margin: 0; }
+.dance-header__english { font-size: 1.15rem; color: var(--thread); margin: 2px 0 10px; font-style: italic; }
+.meta-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.meta-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--plum-tint);
+  color: var(--plum);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.section-block { margin-bottom: 26px; }
+.section-block__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--thread);
+  margin: 0 0 10px;
+}
+/* Defensive backstop: if a table's content is ever wider than its column
+   (e.g. an unusually long translation), scroll WITHIN the table only —
+   never let it force the whole page wider (that's the "awkward horizontal
+   scrolling" a mobile layout must avoid). */
+/* overflow-x:auto alone implicitly computes overflow-y to auto too (per the
+   CSS spec's "if one axis is scroll/auto/hidden, the other computes to
+   auto" rule), which turns this into an unintended VERTICAL scroll
+   container as well — that in turn changes the containing block for the
+   table header's `position: sticky`, causing it to mis-paint. Explicit
+   overflow-y: visible keeps this a horizontal-only scroll backstop, as
+   originally intended. */
+.table-scroll { overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
+
+table.movements {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+table.movements th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a7a86;
+  border-bottom: 1px solid var(--line);
+  padding: 6px 10px 8px 0;
+}
+table.movements td {
+  padding: 10px 10px 10px 0;
+  border-bottom: 1px solid #F0E9DA;
+  vertical-align: top;
+}
+table.movements td.mov-order { font-family: var(--font-mono); color: var(--brass); width: 28px; }
+table.movements td.mov-irish { font-style: italic; color: var(--plum-deep); }
+table.movements td.mov-bars { font-family: var(--font-mono); }
+.bars-unstated { color: #a8433d; font-family: var(--font-mono); font-size: 0.82rem; }
+
+.notes-box {
+  background: var(--leaf-tint);
+  border-left: 3px solid var(--leaf);
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  border-radius: 0 6px 6px 0;
+  margin-top: 6px;
+}
+
+/* ---------------- Beat-dots signature motif ---------------- */
+
+.beat-dots { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; flex-wrap: wrap; max-width: 140px; }
+.beat-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--line);
+  display: inline-block;
+}
+.beat-dot--filled { background: var(--brass); }
+.beat-gap { width: 6px; display: inline-block; }
+
+/* ---------------- Quiz ---------------- */
+
+.quiz-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.quiz-score { font-family: var(--font-mono); font-size: 0.85rem; color: var(--plum); }
+
+.quiz-question {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--plum-deep);
+  margin: 0 0 20px;
+  line-height: 1.4;
+}
+
+.quiz-options { display: grid; gap: 10px; }
+.quiz-option {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  font-size: 0.98rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.quiz-option:hover { border-color: var(--brass); }
+.quiz-option--correct { border-color: var(--leaf); background: var(--leaf-tint); }
+.quiz-option--wrong { border-color: var(--thread); background: var(--thread-tint); }
+.quiz-option:disabled { cursor: default; }
+
+.quiz-feedback { margin-top: 18px; font-size: 0.95rem; }
+.quiz-feedback strong.correct-text { color: var(--leaf); }
+.quiz-feedback strong.wrong-text { color: var(--thread); }
+
+.quiz-summary { text-align: center; padding: 40px 20px; }
+.quiz-summary__score {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--plum-deep);
+  margin: 6px 0;
+}
+
+/* ---------------- Flashcards ---------------- */
+
+.flash-wrap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.flashcard {
+  width: 100%;
+  max-width: 520px;
+  min-height: 220px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.flashcard__label {
+  position: absolute; top: 14px; left: 18px;
+  font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--brass);
+}
+.flashcard__text {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--plum-deep);
+  white-space: pre-line;
+  line-height: 1.5;
+}
+.flashcard--back .flashcard__text { font-family: var(--font-body); font-size: 1.1rem; color: var(--ink); }
+.flash-hint { font-family: var(--font-mono); font-size: 0.75rem; color: #9a8b96; }
+
+/* ---------------- Music table / data review ---------------- */
+
+table.tunes { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+table.tunes th {
+  text-align: left; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: #8a7a86; border-bottom: 1px solid var(--line); padding: 8px 10px 8px 0;
+  background: var(--paper);
+}
+/* NOTE: this header is intentionally NOT position:sticky. It was previously,
+   but sticky positioning inside the .table-scroll wrapper (needed for
+   horizontal-scroll safety on long rows) produced an inconsistent paint —
+   the header could render out of order relative to the first couple of
+   body rows. The layout itself measured as correct (verified via
+   getBoundingClientRect), so this looks like an engine-level compositing
+   quirk with sticky-inside-auto-overflow rather than a real layout bug —
+   but a table header staying visible while scrolling is a minor
+   convenience, not worth shipping an unreliable render for. Removed
+   rather than risk it. */
+table.tunes td { padding: 10px 10px 10px 0; border-bottom: 1px solid #F0E9DA; vertical-align: middle; }
+table.tunes td.name { font-family: var(--font-display); font-weight: 600; color: var(--plum-deep); }
+
+.status-pill {
+  font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 3px 9px; border-radius: 999px; display: inline-block;
+}
+.status-pill--exact { background: var(--leaf-tint); color: var(--leaf); }
+.status-pill--fuzzy { background: #FBF0D6; color: #8f6c25; }
+.status-pill--unmatched { background: var(--thread-tint); color: var(--thread); }
+
+.play-btn {
+  border: 1px solid var(--brass); background: var(--brass-light); color: var(--ink);
+  border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer; font-family: var(--font-mono);
+}
+.play-btn:hover { background: var(--brass); }
+
+.embed-wrap { margin: 14px 0; }
+.embed-wrap iframe { border-radius: 10px; }
+
+.review-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.review-controls input {
+  font-family: var(--font-mono); font-size: 0.82rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; width: 220px;
+}
+.mini-btn {
+  font-family: var(--font-mono); font-size: 0.72rem; padding: 5px 10px; border-radius: 6px;
+  border: 1px solid var(--plum); background: transparent; color: var(--plum); cursor: pointer;
+}
+.mini-btn:hover { background: var(--plum-tint); }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.filter-chip {
+  font-family: var(--font-mono); font-size: 0.75rem; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff; cursor: pointer; color: #574A55;
+}
+.filter-chip[aria-pressed="true"] { background: var(--plum); color: var(--paper); border-color: var(--plum); }
+
+/* Secondary section nav (Study/Browse, Listen/Browse/Quiz/Review): a light
+   tab strip, not a row of full buttons — this is wayfinding, not the task
+   itself, so it should read as clearly secondary to whatever screen/card
+   follows it rather than competing for the same visual weight. */
+.tab-strip-group { margin: 18px 0 26px; }
+/* Underline-style tab bar — reads unambiguously as "navigation within this
+   mode" rather than a row of standalone buttons or another set of menu
+   bubbles. A shared baseline rule ties all four/two tabs together as one
+   control; the active tab is the one whose accent-colored underline
+   breaks that shared line. */
+.tab-strip {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  margin: 18px 0 0;
+  border-bottom: 1px solid var(--line);
+}
+.tab-strip-group .tab-strip { margin: 0; }
+.tab-strip button {
+  font-family: var(--font-body); font-size: 0.88rem; font-weight: 600;
+  padding: 9px 14px 10px; cursor: pointer;
+  border: none; border-bottom: 3px solid transparent;
+  margin-bottom: -1px; /* sit flush on the shared baseline rule */
+  background: transparent; color: #7a6c76;
+  border-radius: 0;
+}
+.tab-strip button[aria-current="true"] {
+  color: var(--plum); border-bottom-color: var(--plum); font-weight: 700;
+}
+.tab-strip button:hover:not([aria-current="true"]) { color: var(--ink); background: rgba(0,0,0,0.03); }
+
+/* Mode-specific active-tab color, consistent with the Music/Reading home
+   card colors — so the same color coding carries through every screen
+   inside each mode, not just the home page. */
+.tab-strip--music button[aria-current="true"] {
+  color: #8f6c25; border-bottom-color: var(--brass);
+}
+.tab-strip--reading button[aria-current="true"] {
+  color: var(--thread); border-bottom-color: var(--thread);
+}
+
+.tab-strip__hint {
+  font-size: 0.86rem; color: #6b5c67; margin: 10px 0 0; max-width: 62ch;
+}
+
+/* Small side-by-side-in-spirit comparison copy for Reading Mode's Study vs
+   Browse choice — deliberately understated (muted color, small type, no
+   card/border) so it reads as a quiet clarification rather than new visual
+   weight competing with the Easy/Hard cards just below it. */
+.reading-option-compare {
+  margin: 10px 0 22px;
+  max-width: 62ch;
+}
+.reading-option-compare p {
+  font-size: 0.86rem;
+  color: #6b5c67;
+  line-height: 1.5;
+  margin: 0 0 4px;
+}
+.reading-option-compare strong {
+  color: #574A55;
+  font-weight: 700;
+}
+
+/* Scoped header-centering for screens where a header sits directly above a
+   horizontally-centered group of "menu bubble" cards (currently: the
+   Reading Mode Study/Browse picker, above its Easy/Hard mode-grid).
+   text-align:center alone is not enough: page-lede and reading-option-compare
+   both have a max-width without their own margin:auto, so without the
+   explicit centering below they'd stay flush against the left edge and only
+   their text would center *within* that off-center box — same mismatch bug
+   this is meant to fix, just relocated one level down. Scoped to this class
+   rather than changing the base .page-lede/.tab-strip rules, since those are
+   deliberately left-aligned elsewhere (dance detail, quiz screens, etc.)
+   where centering would hurt readability of longer/tabular content. */
+.centered-page-header { text-align: center; }
+.centered-page-header .page-lede,
+.centered-page-header .reading-option-compare {
+  margin-left: auto;
+  margin-right: auto;
+}
+.centered-page-header .tab-strip { justify-content: center; }
+
+.empty-state {
+  text-align: center; padding: 60px 20px; color: #8a7a86; font-family: var(--font-body);
+}
+
+/* ---------------- Reading Mode: Study (Easy/Hard) ---------------- */
+
+.field-label {
+  font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--brass); display: block; margin-bottom: 8px;
+}
+
+/* Dance name is the anchor fact of the whole screen — per design spec it
+   needs to read as clearly the most important thing on the page, not just
+   another card heading. */
+.study-dance-card { border-left: 4px solid var(--brass); padding-top: 18px; padding-bottom: 20px; }
+.study-dance-name {
+  font-family: var(--font-display); font-weight: 700; font-size: 2rem; line-height: 1.15;
+  color: var(--plum-deep);
+}
+.study-dance-sub { font-size: 0.92rem; color: #6b5c67; margin-top: 4px; font-style: italic; }
+@media (max-width: 480px) {
+  .study-dance-name { font-size: 1.5rem; }
+}
+
+.text-input {
+  width: 100%;
+  font-family: var(--font-body); font-size: 1rem;
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+.text-input:focus { border-color: var(--brass); outline: none; }
+
+.orderer-list { display: flex; flex-direction: column; gap: 8px; }
+.orderer-row {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 8px;
+  padding: 10px 14px;
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+.orderer-row--moved {
+  background: var(--plum-tint);
+  border-color: var(--plum);
+}
+@media (prefers-reduced-motion: reduce) {
+  .orderer-row { transition: none; }
+}
+.orderer-row__num {
+  font-family: var(--font-mono); font-size: 0.85rem; color: var(--brass);
+  width: 20px; flex-shrink: 0; text-align: center;
+}
+.orderer-row__content { flex: 1; min-width: 0; }
+.orderer-row__irish { font-style: italic; color: var(--plum-deep); font-size: 0.98rem; }
+.orderer-row__english { font-size: 0.9rem; color: #574A55; }
+.orderer-row__bars { font-family: var(--font-mono); font-size: 0.78rem; color: var(--brass); margin-top: 2px; }
+.orderer-row__controls { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.orderer-btn {
+  width: 36px; height: 32px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--paper-raised);
+  cursor: pointer; font-size: 1rem; color: var(--plum);
+  display: flex; align-items: center; justify-content: center;
+}
+.orderer-btn:hover:not(:disabled) { background: var(--brass-light); }
+.orderer-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.result-line {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid #F0E9DA;
+}
+.result-line:last-child { border-bottom: none; }
+
+.order-compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 640px) { .order-compare-grid { grid-template-columns: 1fr; } }
+
+.order-compare-list { padding-left: 20px; margin: 0; }
+.order-compare-list__item { margin-bottom: 7px; font-size: 0.95rem; }
+.order-compare-list__item--mismatch { color: var(--thread); font-weight: 600; }
+.order-compare-list__mark { font-family: var(--font-mono); font-size: 0.85em; }
+.order-compare-list__item--mismatch .order-compare-list__mark { color: var(--thread); }
+.order-compare-list__item:not(.order-compare-list__item--mismatch) .order-compare-list__mark { color: var(--leaf); }
+
+/* ---------------- Music Mode: Listen & Identify flashcards ---------------- */
+
+.session-progress {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 18px; font-family: var(--font-mono); font-size: 0.78rem; color: #8a7a86;
+}
+.session-progress__dots { display: flex; gap: 4px; flex-wrap: wrap; max-width: 320px; }
+.session-progress__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.session-progress__dot--done { background: var(--brass); }
+.session-progress__dot--current { background: var(--thread); transform: scale(1.4); }
+
+.audio-card {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 380px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(36,22,38,0.1), 0 16px 40px rgba(36,22,38,0.16);
+  perspective: 1000px;
+  position: relative;
+}
+
+/* Distinct, high-contrast colors for the two states, per spec:
+   FRONT ("still listening/guessing") = deep plum, associated with the
+   app's "in progress / mystery" mood, light text on dark.
+   BACK ("answer revealed") = warm cream, the app's established
+   "information" surface, dark text on light. Both pairs exceed WCAG AA
+   contrast (paper on plum ≈ 12:1; ink on paper-raised ≈ 13:1). */
+.audio-face {
+  min-height: 380px;
+  border-radius: 20px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+}
+.audio-face--front {
+  background: linear-gradient(165deg, var(--plum) 0%, var(--plum-deep) 100%);
+  color: var(--paper);
+  border: 2px solid var(--plum-deep);
+}
+.audio-face--back {
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: 2px solid var(--brass-light);
+}
+.audio-face__eyebrow {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.75;
+}
+.audio-face--front .audio-face__eyebrow { color: var(--brass-light); }
+.audio-face--back .audio-face__eyebrow { color: var(--thread); }
+
+/* .btn--ghost's default (plum text, transparent bg) is unreadable on the
+   dark front face — needs its own light-on-dark treatment here. */
+.audio-face--front .btn--ghost {
+  color: var(--paper);
+  border-color: rgba(251, 247, 239, 0.45);
+}
+.audio-face--front .btn--ghost:hover { background: rgba(251, 247, 239, 0.12); }
+
+.audio-playbtn {
+  width: 128px; height: 128px; border-radius: 50%;
+  border: none;
+  background: var(--brass-light);
+  color: var(--plum-deep);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.32);
+  position: relative;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.audio-playbtn:hover { background: var(--brass); transform: scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .audio-playbtn:hover { transform: none; } }
+.audio-playbtn svg { width: 48px; height: 48px; }
+.audio-playbtn--playing::before {
+  content: "";
+  position: absolute; inset: -10px;
+  border-radius: 50%;
+  border: 2px solid var(--brass-light);
+  animation: audio-pulse 1.6s ease-out infinite;
+}
+@keyframes audio-pulse {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .audio-playbtn--playing::before { animation: none; opacity: 0.4; }
+}
+
+.audio-face__status {
+  font-family: var(--font-body); font-size: 0.92rem; min-height: 1.3em;
+}
+.audio-face--front .audio-face__status { color: rgba(251,247,239,0.85); }
+.audio-face__status--error { color: var(--thread-tint); font-weight: 600; }
+
+/* Error state (Spotify never responded in time — never leaves the button
+   permanently disabled/appearing dead; always clickable to retry). Same
+   circular button, distinguished by color + icon + status text together —
+   not color alone. */
+.audio-playbtn--error { background: var(--thread-tint); color: var(--thread); }
+.audio-playbtn--error:hover { background: #F5D9D6; }
+
+.audio-face__name {
+  font-family: var(--font-display); font-weight: 600; font-size: 1.7rem;
+  color: var(--plum-deep);
+}
+
+.audio-meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  width: 100%; max-width: 320px;
+}
+.audio-meta-cell {
+  background: #fff; border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 12px;
+}
+.audio-meta-cell__label {
+  font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: #8a7a86; display: block; margin-bottom: 3px;
+}
+.audio-meta-cell__value { font-family: var(--font-body); font-weight: 600; font-size: 1rem; color: var(--plum-deep); }
+
+.btn--big { padding: 14px 28px; font-size: 1rem; }
+
+.audio-fallback-note {
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--brass); text-align: center; margin-top: 6px;
+}
+
+/* Title-free playback control used inside the Metadata Quiz's
+   listen-and-identify questions — same visual language as the Listen &
+   Identify flashcard's front, just compact enough to sit above the answer
+   options rather than filling a whole card. */
+.quiz-audio-player {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--plum); border-radius: 14px;
+  padding: 18px 22px; margin: 4px 0 20px;
+}
+.quiz-playbtn { width: 56px; height: 56px; flex-shrink: 0; }
+.quiz-playbtn svg { width: 24px; height: 24px; }
+.quiz-audio-player__status {
+  font-family: var(--font-body); font-size: 0.92rem; color: rgba(251,247,239,0.9);
+}
+.quiz-audio-fallback-note {
+  font-family: var(--font-mono); font-size: 0.75rem; color: var(--brass);
+  margin: 4px 0 8px; line-height: 1.5;
+}
+
+/* ---------------- Footer ---------------- */
+
+.app-footer {
+  text-align: center;
+  padding: 30px 20px 50px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #9a8b96;
+}
+
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<!-- Hidden host element for the official Spotify iFrame Playback API controller.
+     Kept outside #app so app.js's mount()/router never destroys it — the
+     controller (and therefore audio playback) must persist across screen
+     re-renders. Off-screen, not display:none (so the iframe stays live). -->
+<div id="spotify-controller-host" aria-hidden="true"
+     style="position:fixed; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;"></div>
+
+<noscript>
+  <div style="padding:40px; font-family:sans-serif; max-width:600px; margin:0 auto;">
+    This app needs JavaScript enabled to run — it's a fully client-side practice
+    tool with no server component.
+  </div>
+</noscript>
+
+<script>
+/* ============================================================
+   DATA LAYER — edit these two objects to add/change dances or songs.
+   ============================================================ */
+/**
+ * READING MODE — SOURCE DATA
+ * Extracted from "Ár Rincí Céilí: Thirty Popular Céilí Dances" (An Coimisiún le
+ * Rincí Gaelacha, Eagrán 2014), pages 9–75.
+ *
+ * SCHEMA
+ * ------
+ * id           slug, unique
+ * number       dance number as listed in the book's "List of Dances" (1-30)
+ * irishName    Irish title
+ * englishName  English title
+ * page         page range in source PDF (note: dance 30 spans pages 73-75 —
+ *              deliberately NOT split, per validation requirement)
+ * meter        musical time signature / tune type as stated in the book
+ * formation    short formation description as stated in the book
+ * sections     ordered array of { title, titleIrish, movements[] }
+ *              - Dances 1-14 (progressive / round / long dances) have a single
+ *                section called "Movements".
+ *              - Dances 15-30 (Four/Six/Eight/Sixteen Hand dances) follow the
+ *                book's own structure: Lead Around, Body, First/Second/Third
+ *                Figure(s), Finish. The "Body" is danced again between each
+ *                Figure per the book — that repetition is structural
+ *                performance instruction, not a new named movement, so it is
+ *                captured in `structureNotes` rather than invented as a
+ *                duplicate movement entry (avoids silently fabricating data).
+ * movements[]  { order, irish, english, bars }
+ *              bars is a number, OR null when the book does not state an
+ *              explicit bar count for that movement (e.g. movements danced to
+ *              march time with no fixed bar length, or a movement whose bars
+ *              are only given as part of a combined unit with the next
+ *              movement). Null is flagged in the UI — never guessed.
+ * structureNotes  free text capturing repeat/performance instructions that
+ *              aren't part of the movement-name/bar data itself
+ *              (e.g. "The Body is danced again between each Figure").
+ */
+
+const READING_DATA = [
+  {
+    id: "walls-of-limerick", number: 1, irishName: "Ballaí Luimní", englishName: "Walls of Limerick",
+    page: "9-10", meter: "Reel", formation: "Progressive — any number of couples, two couples facing",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Trasna Leath-thaobh", english: "Half Right and Left", bars: 8 },
+      { order: 3, irish: "Fir is Mná Thall", english: "Dance with Opposite", bars: 8 },
+      { order: 4, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: "Progressive dance: couples advance up/down the hall after each repetition."
+  },
+  {
+    id: "antrim-reel", number: 2, irishName: "Cor Aontroma", englishName: "Antrim Reel",
+    page: "11-12", meter: "Reel", formation: "Progressive — any number of couples, two couples facing",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is Filleadh", english: "Advance and Return", bars: 4 },
+      { order: 2, irish: "Leathchasadh Deasóige is Ciotóige", english: "Right and Left Half Turn", bars: 4 },
+      { order: 3, irish: "Leaththaobh agus Athrú Áiteanna", english: "Sidestep and Heyes", bars: 16 },
+      { order: 4, irish: "Síos i Lár Baill", english: "Down the Centre", bars: 8 },
+      { order: 5, irish: "Deasóga is Ciotóga Trasna", english: "Right and Left Hands Across", bars: 8 },
+      { order: 6, irish: "Anonn le Chéile", english: "Sidestep with Opposite", bars: 8 },
+      { order: 7, irish: "Ciotóga agus Deasóga Trasna", english: "Left and Right Hands Across", bars: 8 },
+      { order: 8, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: ""
+  },
+  {
+    id: "siege-of-carrick", number: 3, irishName: "Briseadh na Carraige", englishName: "Siege of Carrick",
+    page: "13", meter: "Jig (danced to \"Haste to the Wedding\")", formation: "Progressive — any number of couples, two couples facing; originally a four-hand dance",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 2, irish: "Deasóga is Ciotóga Trasna", english: "Right & Left Hands Across", bars: 8 },
+      { order: 3, irish: "Síos i Lár Baill agus Casadh", english: "Down Centre and Turn", bars: 8 },
+      { order: 4, irish: "Suas i Lár Baill agus Luascadh", english: "Up Centre and Swing", bars: 8 },
+    ]}],
+    structureNotes: "Each part of the tune is played twice after the dance commences, so claps in movements 3 & 4 land correctly."
+  },
+  {
+    id: "rakes-of-mallow", number: 4, irishName: "Réicí Mhala", englishName: "The Rakes of Mallow",
+    page: "14-15", meter: "Reel", formation: "Progressive — trios (gent with two ladies on his right); no sidestep used",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Luascadh le Cailín Thall", english: "Swing with Opposite Lady", bars: 8 },
+      { order: 3, irish: "Luascadh le Cailín ar Dheis", english: "Swing with Lady on Right", bars: 8 },
+      { order: 4, irish: "Uillinn in Uillinn", english: "Link Arms in Centre", bars: 8 },
+      { order: 5, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: "Unusual formation of trios rather than couples; ladies exchange places each repetition."
+  },
+  {
+    id: "harvest-time-jig", number: 5, irishName: "Port an Fhómhair", englishName: "Harvest Time Jig",
+    page: "16-17", meter: "Jig", formation: "Progressive — trios in a line (gent with a lady on either side), facing another trio",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+      { order: 3, irish: "Deasóga agus Ciotóga Trasna", english: "Right and Left Hands Across", bars: 8 },
+      { order: 4, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+      { order: 5, irish: "Ciotóga agus Deasóga Trasna", english: "Left and Right Hands Across", bars: 8 },
+      { order: 6, irish: "Céim is Cas Timpeall", english: "Step and Turn", bars: 16 },
+      { order: 7, irish: "Ar Aghaidh, ar gCúl agus Tríd", english: "Advance, Retire & Pass Through", bars: 8 },
+    ]}],
+    structureNotes: "Movement 2 sidesteps right first; movement 4 repeats it sidestepping left first."
+  },
+  {
+    id: "siege-of-ennis", number: 6, irishName: "Ionsaí na hInse", englishName: "Siege of Ennis",
+    page: "18", meter: "Jig", formation: "Progressive — two couples in line, facing another set of two couples",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+      { order: 3, irish: "Deasóga is Ciótóga Trasna", english: "Right & Left Hands Across", bars: 8 },
+      { order: 4, irish: "Ar Aghaidh, ar gCúl agus Tríd", english: "Advance, Retire and Pass Through", bars: 8 },
+    ]}],
+    structureNotes: ""
+  },
+  {
+    id: "haymakers-jig", number: 7, irishName: "Baint an Fhéir", englishName: "Haymakers Jig",
+    page: "19-20", meter: "Jig", formation: "Long dance — five couples, gents in one line, ladies in the other; no sidestep used",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      { order: 2, irish: "Casadh i Lár Baill", english: "Turn in Centre", bars: 16 },
+      { order: 3, irish: "Luascadh i Lár Baill", english: "Swing in Centre", bars: 16 },
+      { order: 4, irish: "Uillinn in Uillinn", english: "Link Arms", bars: null },
+      { order: 5, irish: "Síos ar Ghach Taobh", english: "Cast Off", bars: null },
+    ]}],
+    structureNotes: "Bar counts for movements 4 and 5 are not stated in the source (no fixed bar length given — flagged, not guessed). Dance repeats until every couple has led as couple No.1."
+  },
+  {
+    id: "bridge-of-athlone", number: 8, irishName: "Droichead Átha Luain", englishName: "The Bridge of Athlone",
+    page: "21-22", meter: "Jig & March (movements 1-2 jig, 3-4 march)", formation: "Progressive — two lines, gents' left shoulder to top of room",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "An tArdú ar Aghaidh is ar gCúl", english: "Rising Step, Advance and Retire", bars: 32 },
+      { order: 2, irish: "Síos i Lár Baill", english: "Down the Centre", bars: 8 },
+      { order: 3, irish: "Síos ar Ghach Taobh", english: "Cast Off", bars: null },
+      { order: 4, irish: "An Droichead", english: "The Bridge", bars: null },
+    ]}],
+    structureNotes: "Movements 3 & 4 are danced to march time with no bar count stated in the source. Movements repeat until the music ceases."
+  },
+  {
+    id: "waves-of-tory", number: 9, irishName: "Tonnaí Thóraigh", englishName: "Waves of Tory",
+    page: "23-24", meter: "Reel & March (movements 1-4 reel, 5-7 march)", formation: "Progressive — two lines in sets of four, gents' left shoulder to top of room",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Deasóga is Ciotóga Trasna", english: "Right & Left Hands Across", bars: 8 },
+      { order: 3, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 4, irish: "Ciotóga is Deasóga Trasna", english: "Left & Right Hands Across", bars: 8 },
+      { order: 5, irish: "Thart ar Dheis agus Suas i Lár", english: "Lead Off to the Right and Up the Centre", bars: null },
+      { order: 6, irish: "Na Tonnaí", english: "The Waves", bars: null },
+      { order: 7, irish: "Síos ar Ghach Taobh", english: "Cast Off", bars: null },
+    ]}],
+    structureNotes: "Represents the waves seen around Tory Island, Co. Donegal. Movements 5-7 (march time) have no bar count stated in the source."
+  },
+  {
+    id: "long-dance", number: 10, irishName: "Rince Fada", englishName: "Long Dance",
+    page: "25-26", meter: "Jig", formation: "Progressive — two lines, odd/even couples form sets; known only by its Gaelic title; no sidestep used",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "An tArdach", english: "The Rising Step", bars: 4 },
+      { order: 2, irish: "Deasóga Trasna", english: "Right Wheel", bars: 4 },
+      { order: 3, irish: "An tArdach", english: "The Rising Step", bars: 4 },
+      { order: 4, irish: "Ciotóga Trasna", english: "Left Wheel", bars: 4 },
+      { order: 5, irish: "Síos i Lár Baill", english: "Advance Down Centre", bars: 8 },
+      { order: 6, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: "Odd-numbered couples are the leading couple."
+  },
+  {
+    id: "haste-to-the-wedding", number: 11, irishName: "Deifir chun na Bainise", englishName: "Haste to the Wedding",
+    page: "27-28", meter: "Jig", formation: "Progressive — two lines, odd/even couples form sets; even-numbered couples lead",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "An tArdach", english: "The Rising Step", bars: 4 },
+      { order: 2, irish: "Deasóga Trasna", english: "Right Wheel", bars: 4 },
+      { order: 3, irish: "An tArdach", english: "The Rising Step", bars: 4 },
+      { order: 4, irish: "Ciotóga Trasna", english: "Left Wheel", bars: 4 },
+      { order: 5, irish: "Suas i Lár Baill", english: "Up the Centre", bars: 8 },
+      { order: 6, irish: "An Chéad Fháinne", english: "First Ring", bars: 8 },
+      { order: 7, irish: "An Dara Fáinne", english: "Second Ring", bars: 8 },
+      { order: 8, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: ""
+  },
+  {
+    id: "lannigans-ball", number: 12, irishName: "Bainis Uí Lonagáin", englishName: "Lannigan's Ball",
+    page: "29-30", meter: "Single Jig", formation: "Round dance — six couples in a circle holding hands; also acceptable as an 8-hand dance in competition",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 16 },
+      { order: 2, irish: "Uillinn in Uillinn", english: "Quarter's Hook", bars: 8 },
+      { order: 3, irish: "Céim le Páirtí", english: "Rise and Grind Step", bars: 16 },
+      { order: 4, irish: "Gabháil Timpeall i Lár", english: "Lead Round in Centre", bars: 16 },
+      { order: 5, irish: "Spallaíocht", english: "Flirtation", bars: 16 },
+      { order: 6, irish: "Carnáil", english: "Stack-up", bars: 16 },
+      { order: 7, irish: "Gabháil Timpeall", english: "Lead Around", bars: 8 },
+      { order: 8, irish: "Céim an Fháinne", english: "Ring", bars: 16 },
+    ]}],
+    structureNotes: "Ordinary simple threes or skip threes are both acceptable but must not be mixed within the dance. No sidestep is used."
+  },
+  {
+    id: "the-big-dance", number: 13, irishName: "An Rince Mór", englishName: "The Big Dance",
+    page: "31", meter: "Reel", formation: "Round dance — couples holding hands in a circle; known only by its Gaelic title; traditionally the \"Last Dance\" at northern céilithe",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Leath Thaobh i bhFáinne", english: "Ring to Left and Right", bars: 8 },
+      { order: 2, irish: "Luascadh leis an Chailín eile", english: "Swing with Lady on Left", bars: 8 },
+      { order: 3, irish: "Luascadh le Comhrinceoirí", english: "Swing with Partner", bars: 8 },
+      { order: 4, irish: "Uillinn in Uillinn", english: "Link Arms", bars: 8 },
+      { order: 5, irish: "Gabháil Timpeall", english: "Lead Around", bars: 8 },
+    ]}],
+    structureNotes: ""
+  },
+  {
+    id: "bonfire-dance", number: 14, irishName: "Rince Mór na Tine", englishName: "Bonfire Dance",
+    page: "32-33", meter: "Reel", formation: "Round dance — couples in a circle holding hands; preferably 6+ couples; traditionally danced around the bonfire on St. John's Eve",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 3, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 4, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 5, irish: "Isteach is Amach", english: "Sidestep In and Out", bars: 4 },
+      { order: 6, irish: "Uillinn in Uillinn", english: "Link Arms", bars: 4 },
+      { order: 7, irish: "Isteach is Amach", english: "Sidestep In and Out", bars: 4 },
+      { order: 8, irish: "Uillinn in Uillinn", english: "Link Arms", bars: 4 },
+      { order: 9, irish: "An Rós", english: "The Rose", bars: 32 },
+      { order: 10, irish: "Luascadh agus Malartú", english: "Swing and Exchange Partners", bars: 8 },
+    ]}],
+    structureNotes: "Dance repeats as often as desired; each lady passes one place left, each gent one place right, gaining a new partner each time."
+  },
+
+  // ---- Four/Six/Eight/Sixteen Hand dances: Lead Around / Body / Figure(s) / Finish structure ----
+
+  {
+    id: "four-hand-reel", number: 15, irishName: "Cor Ceathrar", englishName: "Four Hand Reel",
+    page: "34-36", meter: "Reel", formation: "Four-hand — two couples",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "An Chearnóg", english: "The Square", bars: 16 },
+        { order: 2, irish: "Ceithre Seachtanna", english: "Four Sevens", bars: 8 },
+        { order: 3, irish: "Deasóga agus Ciotóga Trasna", english: "Right and Left Hands Across", bars: 8 },
+        { order: 4, irish: "Síos i Lár Baill", english: "Down the Centre", bars: 8 },
+        { order: 5, irish: "Slabhra na nDeas Lámh", english: "Right and Left Chain", bars: 8 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Figiúr a hOcht agus Fáinne Triúr", english: "Figure of Eight & Ring of Three", bars: 32 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+    ],
+    structureNotes: "The Body is danced again after each couple performs a Figure (each Figure is danced first by the top couple, then repeated by the opposite couple)."
+  },
+  {
+    id: "humours-of-bandon", number: 16, irishName: "Pléaracha na Bandan", englishName: "Humours of Bandon",
+    page: "37-38", meter: "Jig", formation: "Four-hand — two couples",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 2, irish: "Trasna Leath-Taobh", english: "Half Right and Left", bars: 8 },
+        { order: 3, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 4, irish: "Trasna Leath-Taobh", english: "Half Right and Left", bars: 8 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Idir An Bheirt Thall", english: "Advance Through Centre", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Trasna i Lár Baill", english: "Centre Meet", bars: 16 },
+      ]},
+      { title: "Third Figure", titleIrish: "An Triú Figiúr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+    ],
+    structureNotes: "The Body is always danced to the second part of the tune. The Second Figure is danced twice — once led by top gent/opposite lady, once by top lady/opposite gent."
+  },
+  {
+    id: "glencar-reel", number: 17, irishName: "Cor Gleann Cearr", englishName: "Glencar Reel",
+    page: "39-40", meter: "Reel", formation: "Six-hand — three couples, gents in one line, ladies facing partner",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 3, irish: "Anonn Anall ar Leath-Taobh", english: "Sidestep Through", bars: 8 },
+      { order: 4, irish: "Figiúr a hOcht", english: "Figure of Eight", bars: null },
+      { order: 5, irish: "Figiúr a hOcht i mBeirteanna", english: "Double Figure of Eight", bars: 16 },
+      { order: 6, irish: "Na Tonnaí", english: "The Waves", bars: null },
+      { order: 7, irish: "Slabhra Iomlán", english: "Full Chain", bars: 16 },
+    ]}],
+    structureNotes: "Movements 4 & 5 are danced as one 16-bar unit; movements 6 & 7 are likewise danced as one 16-bar unit (per the book's note). Individual bar counts for movements 4 and 6 are not separately stated."
+  },
+  {
+    id: "fairy-reel", number: 18, irishName: "Cor na Síog", englishName: "The Fairy Reel",
+    page: "41-42", meter: "Reel", formation: "Six-hand — two gents, four ladies, in trios (gent between two ladies); can also be danced progressively",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is Ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 2, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 3, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      { order: 4, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      { order: 5, irish: "Beirt ar Aghaidh", english: "Slip Sides", bars: 16 },
+      { order: 6, irish: "Buachaillí i Lár agus Uillinn in Uillinn", english: "Gents Centre and Link Arms", bars: 16 },
+      { order: 7, irish: "An Chearnóg agus Muilleata", english: "The Square and Diamond", bars: 16 },
+      { order: 8, irish: "Na Stuanna", english: "Arches", bars: 8 },
+      { order: 9, irish: "Ar Aghaidh, ar gCúl agus Tríd", english: "Advance, Retire and Pass Through", bars: 8 },
+    ]}],
+    structureNotes: ""
+  },
+  {
+    id: "duke-reel", number: 19, irishName: "Cor an Diúic", englishName: "The Duke Reel",
+    page: "43-44", meter: "Reel", formation: "Six-hand — three couples; unusual (triangular) formation",
+    sections: [
+      { title: "Opening", titleIrish: "Céim an Fháinne", movements: [
+        { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 8 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 16 },
+        { order: 2, irish: "Uillinn in Uillinn", english: "Link Arms", bars: 8 },
+        { order: 3, irish: "Idirfí", english: "Interlace", bars: 8 },
+        { order: 4, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Figiúr", movements: [
+        { order: 1, irish: "Figiúr a hOcht", english: "Figure of Eight", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Slabhra na nDeas Lámh", english: "Right and Left Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+      ]},
+    ],
+    structureNotes: "Each Figure is danced three times (couple 1 with 2, 2 with 3, 3 with 1), with the Body repeated between."
+  },
+  {
+    id: "eight-hand-reel", number: 20, irishName: "Cor Ochtar", englishName: "Eight Hand Reel",
+    page: "45-47", meter: "Reel", formation: "Eight-hand — four couples (Tops/Sides, Leading/Opposite)",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Extended Sides", bars: 16 },
+        { order: 2, irish: "Scinneadh Trasna", english: "Skip Across", bars: 32 },
+        { order: 3, irish: "Slabhra Fillte", english: "Return Chain", bars: 16 },
+        { order: 4, irish: "Cúl le Cúl", english: "Back to Back", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "In the Lead Around, equal distance must be kept between couples. Each Figure is danced by Tops, then Sides. When sidestepping right, always keep behind; sidestepping left, always keep in front."
+  },
+  {
+    id: "morris-reel", number: 21, irishName: "Cor Muirgheis", englishName: "Morris Reel",
+    page: "48-50", meter: "Reel", formation: "Eight-hand — four couples; identical to the Eight Hand Reel except Body movements 1 & 2",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 16 },
+        { order: 2, irish: "Deas Lámha Trasna", english: "Right Hands Across", bars: 32 },
+        { order: 3, irish: "Slabhra Fillte", english: "Return Chain", bars: 16 },
+        { order: 4, irish: "Cúl le Cúl", english: "Back to Back", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "All movements are identical to the Eight Hand Reel except Body movements 1 and 2."
+  },
+  {
+    id: "cross-reel", number: 22, irishName: "An Cor Casta", englishName: "Cross Reel",
+    page: "51-53", meter: "Reel", formation: "Eight-hand — four couples",
+    sections: [
+      { title: "Lead Around", titleIrish: "An Gabháil Timpeall", movements: [
+        { order: 1, irish: "An Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Extended Sides", bars: 16 },
+        { order: 2, irish: "Slabhra Iomlán", english: "Full Chain", bars: 16 },
+        { order: 3, irish: "Idirfí na bhFhear", english: "Gentlemen Interlace", bars: 16 },
+        { order: 4, irish: "Cúl le Cúl", english: "Back to Back", bars: 8 },
+        { order: 5, irish: "Athrú Áiteanna", english: "Exchange Places", bars: 8 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Figiúr a hOcht agus Fáinne Mór", english: "Figure of Eight & Ring", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Thart ar a chéile agus Deasóga Trasna", english: "Circle Round and Hands Across", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "First Figure danced by top gents, then side gents. Movement 5 (Exchange Places) is danced without taking hands and without promenade step."
+  },
+  {
+    id: "eight-hand-jig", number: 23, irishName: "An Port Ochtar", englishName: "Eight Hand Jig",
+    page: "54-56", meter: "Jig", formation: "Eight-hand — four couples",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 2, irish: "Scinneadh Trasna", english: "Skip Across", bars: 16 },
+        { order: 3, irish: "Dhá Rang Isteach", english: "Swing into Line", bars: 16 },
+        { order: 4, irish: "Fáinne Isteach is Amach", english: "Set All Around", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Slabhra na nDeas Lámh agus Deas Lámha Anonn", english: "Right and Left Chain and Right Hand to Opposite Lady", bars: 32 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "Body movement 3 (Swing into Line) reorders couples into a single line before continuing."
+  },
+  {
+    id: "st-patricks-day", number: 24, irishName: "Lá Fhéile Phádraig", englishName: "St. Patrick's Day",
+    page: "57-59", meter: "Jig", formation: "Eight-hand — four couples, danced to the tune of the same name",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 2, irish: "Trasna Leath-Taobh", english: "Half Left and Right", bars: 6 },
+        { order: 3, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 4, irish: "Trasna Leath-Taobh", english: "Half Left and Right", bars: 6 },
+        { order: 5, irish: "Slabhra an Dá Cheathrún", english: "Double Quarter Chain", bars: 16 },
+        { order: 6, irish: "Na Cliatháin", english: "Extended Sides", bars: 14 },
+        { order: 7, irish: "Slabhra Iomlán", english: "Full Chain", bars: 14 },
+      ]},
+      { title: "First Figure (Tops)", titleIrish: "An Chéad Fhigiúr — Barr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "First Figure (Sides)", titleIrish: "An Chéad Fhigiúr — Taobh", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "Second Figure (Tops)", titleIrish: "An Dara Figiúr — Barr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Second Figure (Sides)", titleIrish: "An Dara Figiúr — Taobh", movements: [
+        { order: 1, irish: "Slabhra na mBhan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+    ],
+    structureNotes: "Tune has an 8-bar first part and a 14-bar second part. The Lead Around, Double Quarter Chain and the Figures dance to the first part (8 bars); Sides, Half Left and Right, Extended Sides and Full Chain dance to the second part (14 bars). The Body is danced between every Tops/Sides performance of each Figure."
+  },
+  {
+    id: "trip-to-the-cottage", number: 25, irishName: "Turas 'un Tí", englishName: "Trip to the Cottage",
+    page: "60-61", meter: "Jig", formation: "Eight-hand — four couples; originated in Co. Armagh",
+    sections: [
+      { title: "Opening", titleIrish: "Athrú Áiteanna agus Gabháil Timpeall", movements: [
+        { order: 1, irish: "Athrú Áiteanna agus Gabháil Timpeall", english: "Cross Over and Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Línte Trasnan agus Fáinne", english: "Diagonal Lines and Rings", bars: 24 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Airsí agus Fáinne", english: "Arches and Ring", bars: 24 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl agus Trasna", english: "Advance, Retire and Cross Over", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Athrú Áiteanna agus Gabháil Timpeall (arís)", english: "Repeat the Opening Movement", bars: 32 },
+      ]},
+    ],
+    structureNotes: "Opening is danced twice (top couples cross first, then repeated with side couples crossing first). Body is danced twice (tops version, then sides version). First Figure is danced four times, once for each lady advancing from each pair of tops/sides."
+  },
+  {
+    id: "high-cauled-cap", number: 26, irishName: "Cadhp an Chúil Áird", englishName: "High Cauled Cap",
+    page: "62-64", meter: "Reel", formation: "Eight-hand — four couples; originated in Co. Kerry",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 16 },
+        { order: 2, irish: "Slabhra an Dá Cheathrún", english: "Double Quarter Chain", bars: 16 },
+        { order: 3, irish: "Idirfí na mBan", english: "Ladies Interlace", bars: 16 },
+        { order: 4, irish: "Idirfí na bhFear", english: "Gents Interlace", bars: 16 },
+        { order: 5, irish: "Greadadh Cos is Bos", english: "Stamp and Clap", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Sleaschéim agus Tríd", english: "Sidestep and Dance Through", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Fáinne is Lámha Isteach", english: "Circle and Cross", bars: 24 },
+      ]},
+      { title: "Third Figure", titleIrish: "An Triú Figiúr", movements: [
+        { order: 1, irish: "Slabhra na mBan", english: "Ladies Chain", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "Traditionally danced to the tune of the same name."
+  },
+  {
+    id: "sweets-of-may", number: 27, irishName: "Aoibhneas na Bealtaine", englishName: "Sweets of May",
+    page: "65-66", meter: "Single Jig", formation: "Eight-hand — four couples; originated in Co. Armagh",
+    sections: [
+      { title: "Opening", titleIrish: "Céim an Fháinne", movements: [
+        { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Athrú Áiteanna", english: "Cross Over and Back", bars: 8 },
+        { order: 2, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 8 },
+        { order: 3, irish: "Bualadh na gClog", english: "Ringing the Bells", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Luascadh Deiseal is Tuathal", english: "See-Saw", bars: 16 },
+      ]},
+      { title: "Third Figure", titleIrish: "An Triú Figiúr", movements: [
+        { order: 1, irish: "Lámha in Airde", english: "Sides Under Arms", bars: 16 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 16 },
+      ]},
+    ],
+    structureNotes: "Ordinary simple or skip threes are acceptable but must not be mixed within the dance."
+  },
+  {
+    id: "the-three-tunes", number: 28, irishName: "Na Trí Fionn", englishName: "The Three Tunes",
+    page: "67-69", meter: "Jig, Hornpipe & Reel (three tunes: Haste to the Wedding / Leslie's Hornpipe / The German Beau)",
+    formation: "Eight-hand — four couples; originated in Co. Armagh",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Céim an Fháinne", english: "Ring", bars: 16, tune: "Haste to the Wedding" },
+      { order: 2, irish: "Fáinne na mBan is na bhFear", english: "Ladies and Gents Ring", bars: 16, tune: "Haste to the Wedding" },
+      { order: 3, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16, tune: "Leslie's Hornpipe" },
+      { order: 4, irish: "Greadadh Cos is Bos", english: "Stamp and Clap", bars: 16, tune: "Leslie's Hornpipe" },
+      { order: 5, irish: "Luascadh Deiseal is Tuathal", english: "See-Saw", bars: 16, tune: "The German Beau" },
+      { order: 6, irish: "An Tochras", english: "Roly Poly", bars: 24, tune: "The German Beau" },
+      { order: 7, irish: "Crúca agus Slabhra", english: "Hook and Chain", bars: 16, tune: "Haste to the Wedding" },
+      { order: 8, irish: "Fáinne na mBan is na bhFear", english: "Ladies and Gents Ring", bars: 16, tune: "Haste to the Wedding" },
+      { order: 9, irish: "Lámha in Airde", english: "Sides Under Arms", bars: 16, tune: "Leslie's Hornpipe" },
+      { order: 10, irish: "Greadadh Cos is Bos", english: "Stamp and Clap", bars: 16, tune: "Leslie's Hornpipe" },
+      { order: 11, irish: "Tríd an Chró", english: "Thread the Needle", bars: 16, tune: "The German Beau" },
+      { order: 12, irish: "An Tochras", english: "Roly Poly", bars: 24, tune: "The German Beau" },
+      { order: 13, irish: "Céim an Fháinne", english: "Ring", bars: 16, tune: "Haste to the Wedding" },
+    ]}],
+    structureNotes: "Unusual among céilí dances for using three different named tunes in sequence, each danced at a progressively slower pace: Jig, then Hornpipe (slower), then Reel (slower still)."
+  },
+  {
+    id: "gates-of-derry", number: 29, irishName: "Geataí Dhoire", englishName: "Gates of Derry",
+    page: "70-72", meter: "Single Jig", formation: "Eight-hand — four couples in two lines; ordinary simple threes only (no skip threes) at competition; originated in Co. Derry; favourite tune: The Quaker's Wife",
+    sections: [{ title: "Movements", titleIrish: "Gluaiseachtaí", movements: [
+      { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      { order: 2, irish: "Na Geataí", english: "The Gates", bars: 8 },
+      { order: 3, irish: "Céim an Fháinne", english: "Rings", bars: 8 },
+      { order: 4, irish: "Na Geataí", english: "The Gates", bars: 8 },
+      { order: 5, irish: "Céim an Fháinne", english: "Rings", bars: 8 },
+      { order: 6, irish: "Síos I Lár Baill", english: "Telescope", bars: 16 },
+      { order: 7, irish: "Deasóga is Ciotóga Trasna", english: "Right and Left Hands Across", bars: 8 },
+      { order: 8, irish: "Luascadh Timpeall", english: "Swing Around", bars: 8 },
+    ]}],
+    structureNotes: "Dance is performed three times in total: (1) movements 1-8 in full; (2) movements 2-8 with movement 1 omitted, and movements 7-8 danced only by the two middle couples while outer couples stand; (3) movements 2-8 again with all couples dancing 7-8, each time changing lines. Movement 1 (Advance and Retire) is then danced once more to finish. On completion, couples 1 and 4 have exchanged places while couples 2 and 3 are back in their original position."
+  },
+  {
+    id: "sixteen-hand-reel", number: 30, irishName: "Cor Seisear Déag", englishName: "Sixteen Hand Reel",
+    page: "73-75", meter: "Reel", formation: "Sixteen-hand — eight couples (Leading/Opposite Tops, Leading/Opposite Sides, Second Tops, Second Sides)",
+    sections: [
+      { title: "Lead Around", titleIrish: "Gabháil Timpeall", movements: [
+        { order: 1, irish: "Gabháil Timpeall", english: "Lead Around", bars: 16 },
+      ]},
+      { title: "Body", titleIrish: "An Chabhail", movements: [
+        { order: 1, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 2, irish: "Fáinne", english: "Hands Around", bars: 8 },
+        { order: 3, irish: "Na Cliatháin", english: "Sides", bars: 8 },
+        { order: 4, irish: "Fáinne", english: "Hands Around", bars: 8 },
+        { order: 5, irish: "Slabhra Leath Slí", english: "Half Chain", bars: 16 },
+        { order: 6, irish: "Uillinn in Uillinn", english: "Link Arms", bars: 16 },
+      ]},
+      { title: "First Figure", titleIrish: "An Chéad Fhigiúr", movements: [
+        { order: 1, irish: "Ar Aghaidh is ar gCúl", english: "Advance and Retire", bars: 16 },
+      ]},
+      { title: "Second Figure", titleIrish: "An Dara Figiúr", movements: [
+        { order: 1, irish: "Deas Lámha Anonn", english: "Right Hand to Opposite Lady", bars: 24 },
+      ]},
+      { title: "Third Figure", titleIrish: "An Triú Figiúr", movements: [
+        { order: 1, irish: "Lámha in Airde", english: "Arch Arms", bars: 24 },
+      ]},
+      { title: "Finish", titleIrish: "An Deireadh", movements: [
+        { order: 1, irish: "An Deireadh", english: "The Finish", bars: 40 },
+      ]},
+    ],
+    structureNotes: "This dance spans pages 73–75 of the source (a single continuous dance, not split across pages). Each Figure is performed in order by couple-pairs 1&2, 3&4, 5&6, 7&8, with the Body repeated between each pair's performance."
+  },
+];
+
+// Flattens a dance's sections into one ordered list for quiz/flashcard use,
+// tagging each movement with its section title.
+function flattenDanceMovements(dance) {
+  const out = [];
+  dance.sections.forEach(section => {
+    section.movements.forEach(m => {
+      out.push({ ...m, section: section.title });
+    });
+  });
+  return out;
+}
+
+
+
+/**
+ * MUSIC MODE — SOURCE DATA
+ *
+ * Source A (reference document): CLRG Music Exam – Set Dances reference table
+ * (tcrgresources.wordpress.com/wp-content/uploads/2015/09/clrgsetdances.pdf),
+ * fetched live. Gives: tune name, tune type/time signature, step bars, set bars.
+ *
+ * Source B (audio): the user's Spotify playlist "TCRG Exam Set Music" (41
+ * tracks, playlist id 3GaJPcWlhtbikPgYbGwSaY), fetched live. 30 of 41 tracks
+ * were resolved from the fetched page (Spotify lazy-loads the remainder on
+ * scroll, so 11 tracks were not visible in the fetch and are NOT guessed —
+ * see `matchStatus: "unmatched"` below).
+ *
+ * SCHEMA
+ * ------
+ * id              slug
+ * name            song name AS GIVEN IN THE REFERENCE DOCUMENT (this is what
+ *                 is shown to the user — per spec, displayed info comes from
+ *                 the reference document, audio comes from Spotify)
+ * tuneType        "Jig" | "Slip Jig/Jig" | "Hornpipe (2/4)" | "Hornpipe (4/4)"
+ * timeSignature   as stated in the reference document
+ * stepBars        number of bars in the step
+ * setBars         number of bars in the set
+ * spotify         null, OR { trackId, spotifyTitle, artist }
+ * matchStatus     "matched-exact"   — titles equivalent after normalization
+ *                 "matched-fuzzy"   — titles equivalent after ignoring a
+ *                                     spelling/wording variation (flagged so
+ *                                     it can be manually checked)
+ *                 "unmatched"       — no corresponding track was found in the
+ *                                     fetched portion of the playlist; NOT
+ *                                     guessed
+ * matchNote       human-readable reason for the match decision
+ *
+ * `matchStatus` and `spotify` can be overridden per-tune by the user from the
+ * in-app Data Review screen (Music Mode → Data Review). Overrides are stored
+ * in localStorage (see js/lib/store.js) and layered on top of this file at
+ * runtime, so this file never needs hand-editing just to fix one match.
+ */
+
+const MUSIC_DATA = [
+  // ---- Jig, 6/8 ----
+  { id: "planxty-hugh-odonnell", name: "Planxty Hugh O'Donnell", tuneType: "Jig", timeSignature: "6/8", stepBars: 16, setBars: 16, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist (Spotify lazy-loads beyond ~30 tracks)." },
+  { id: "blackthorn-stick", name: "The Blackthorn Stick", tuneType: "Jig", timeSignature: "6/8", stepBars: 15, setBars: 15, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "drunken-gauger", name: "Drunken Gauger", tuneType: "Jig", timeSignature: "6/8", stepBars: 15, setBars: 15, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "vanishing-lake", name: "Vanishing Lake", tuneType: "Jig", timeSignature: "6/8", stepBars: 14, setBars: 18, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "planxty-drury", name: "Planxty Drury", tuneType: "Jig", timeSignature: "6/8", stepBars: 12, setBars: 16, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "the-charlady", name: "The Charlady", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 24, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "three-sea-captains", name: "Three Sea Captains", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 20,
+    spotify: { trackId: "3kOeDzQuiFsCsak4DS0BYe", spotifyTitle: "The Three Sea Captains (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the leading 'The' and bracketed suffix are ignored (identical treatment to 'Miss Brown's Fancy' etc.)." },
+  { id: "miss-browns-fancy", name: "Miss Brown's Fancy", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "01CcCuKIX2upUpZjU20iJ9", spotifyTitle: "Miss Brown's Fancy (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed '(73)' suffix is ignored." },
+  { id: "orange-rogue", name: "The Orange Rogue", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "4PmFED3fynQoOUkShQrtV5", spotifyTitle: "The Orange Rogue (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "the-storyteller", name: "The Storyteller", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "1QrfFQozhRSbWwj7SoUy53", spotifyTitle: "The Storyteller (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "wandering-musician", name: "The Wandering Musician", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "1hmEmJcXEhCalUWpFsiAMm", spotifyTitle: "The Wandering Musician (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "hurry-the-jug", name: "Hurry the Jug", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "6TPGEVq6tV4FnEQCXjP985", spotifyTitle: "Hurry the Jug (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "humours-of-bandon", name: "Humours of Bandon", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 16,
+    spotify: { trackId: "4eDdNxdAjwTAYZ8rO35tf5", spotifyTitle: "The Humours of Bandon (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Spotify adds leading 'The'; ignored per matching rules (minor formatting difference)." },
+  { id: "st-patricks-day-jig", name: "St Patrick's Day", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 14,
+    spotify: { trackId: "3jTwV7pa6g0JX17E9JaYiQ", spotifyTitle: "St.Patrick's Day (BPM 70)", artist: "Stephen Carolan, Kieran Graham" },
+    matchStatus: "matched-fuzzy", matchNote: "Punctuation differs ('St.Patrick's' vs 'St Patrick's') and a BPM marker is appended — ignored. NOTE: this is also a céilí dance name (see Reading Mode #24) but this is the distinct solo set-dance tune of the same name — do not conflate." },
+  { id: "jockey-to-the-fair", name: "Jockey to the Fair", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 14,
+    spotify: { trackId: "1lzVbdzkrPNmsEy0D8oPCU", spotifyTitle: "Jockey to the Fair (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "hurling-boys", name: "The Hurling Boys", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 14,
+    spotify: { trackId: "3L9hWxdn1qa0vL0Uc1CeSH", spotifyTitle: "Hurling Boys (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Reference document includes leading 'The'; Spotify omits it — ignored per matching rules." },
+  { id: "rub-the-bag", name: "Rub the Bag", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 14,
+    spotify: { trackId: "5EoO7gD4M4lYpeeEzasV0G", spotifyTitle: "Rub the Bag (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "fiddler-fairy-tree", name: "Fiddler Round the Fairy Tree", tuneType: "Jig", timeSignature: "6/8", stepBars: 8, setBars: 12,
+    spotify: { trackId: "45C4XoNQvD5glYuma0e6UW", spotifyTitle: "The Fiddler Around the Fairy Tree (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-fuzzy", matchNote: "'Around' vs 'Round' — a real wording difference, not just punctuation/case. Flagged for manual confirmation despite high confidence." },
+  { id: "sprig-of-shillelah", name: "Sprig of Shillelah", tuneType: "Jig", timeSignature: "6/8", stepBars: 6, setBars: 10,
+    spotify: { trackId: "2zhfulRrSngLwmwKHHV8JS", spotifyTitle: "The Sprig of Shilelagh (73)", artist: "Dean Crouch" },
+    matchStatus: "matched-fuzzy", matchNote: "Spelling variant: 'Shillelah' vs 'Shilelagh', plus leading 'The'. Common alternate spelling of the same tune — flagged for manual confirmation." },
+
+  // ---- Slip Jig/Jig, 9/8 & 6/8 ----
+  { id: "is-the-big-man-within", name: "Is the Big Man Within?", tuneType: "Slip Jig/Jig", timeSignature: "9/8 & 6/8", stepBars: "8 (SJ)", setBars: "8 (J)",
+    spotify: { trackId: "2n8n1VmDEYQHuwPmJzq7ka", spotifyTitle: "Is the Big Man Within? (113/69)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact title match once the bracketed suffix is ignored." },
+
+  // ---- Hornpipe, 2/4 ----
+  { id: "the-blackbird", name: "The Blackbird", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 15, setBars: 30, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "planxty-davis", name: "Planxty Davis", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 16, setBars: 16, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "the-lodge-road", name: "The Lodge Road", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 8, setBars: 20,
+    spotify: { trackId: "6ZRAPYaMubFrWZ6MJawIGs", spotifyTitle: "The Lodge Road (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "king-of-the-fairies", name: "King of the Fairies", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 8, setBars: 16,
+    spotify: { trackId: "2AUjDCrqlyAqAbwBXEbUYn", spotifyTitle: "King of the Fairies (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "downfall-of-paris", name: "Downfall of Paris", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 8, setBars: 16,
+    spotify: { trackId: "13puuCNjzT2iyHrnwZkuQd", spotifyTitle: "The Downfall of Paris (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Spotify adds leading 'The' — ignored per matching rules." },
+  { id: "rodneys-glory", name: "Rodney's Glory", tuneType: "Hornpipe", timeSignature: "2/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "1fRTfasHXceXzc5kY2QX4p", spotifyTitle: "Rodney's Glory (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+
+  // ---- Hornpipe, 4/4 ----
+  { id: "ace-deuce-of-pipering", name: "Ace & Deuce of Pipering", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 12, setBars: 12, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "kilkenny-races", name: "Kilkenny Races", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 24, spotify: null, matchStatus: "unmatched", matchNote: "Not found in the fetched portion of the playlist." },
+  { id: "bonapartes-retreat", name: "Bonaparte's Retreat", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 20,
+    spotify: { trackId: "5EJHfploPxA8dZ1PtoTqHQ", spotifyTitle: "Boneparts Retreat (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-fuzzy", matchNote: "Spelling variant: 'Boneparts' vs \"Bonaparte's\" — flagged for manual confirmation." },
+  { id: "rambling-rake", name: "Rambling Rake", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 16,
+    spotify: { trackId: "5nNYmynguwt71efFo6Mdm3", spotifyTitle: "The Rambling Rake (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Spotify adds leading 'The' — ignored per matching rules." },
+  { id: "garden-of-daisies", name: "Garden of Daisies", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 16,
+    spotify: { trackId: "0n2x2tTFC321wYvk1myvU5", spotifyTitle: "The Garden of Daisies (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Spotify adds leading 'The' — ignored per matching rules." },
+  { id: "roving-pedlar", name: "The Roving Pedlar", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 14,
+    spotify: { trackId: "2X8cuWJvhXGoO2T5khZc3H", spotifyTitle: "The Roving Pedlar (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "job-of-journeywork", name: "Job of Journeywork", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 14,
+    spotify: { trackId: "0rBkCYCDA7rZORYJtKWnZp", spotifyTitle: "The Job of Journeywork (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Spotify adds leading 'The' — ignored per matching rules." },
+  { id: "the-four-masters", name: "The Four Masters", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "0oRMUZLJGZDerJ5x13v5F0", spotifyTitle: "The Four Masters (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "blue-eyed-rascal", name: "The Blue Eyed Rascal", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "2bDuoD5jaqRHs8PBANYZcq", spotifyTitle: "The Blue Eyed Rascal (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "the-hunt", name: "The Hunt", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "7qZPg3B14OtvcPAYNpUFU2", spotifyTitle: "The Hunt (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "the-piper", name: "The Piper", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "5eA8WW8IzCbXAo5VVqIPCC", spotifyTitle: "The Piper (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "madame-bonaparte", name: "Madame Bonaparte", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 8, setBars: 12,
+    spotify: { trackId: "4iOprO4n5cCDqhnBtIDIUM", spotifyTitle: "Madame Boneparte (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-fuzzy", matchNote: "Spelling variant: 'Boneparte' vs 'Bonaparte' — flagged for manual confirmation." },
+  { id: "youghal-harbour", name: "Youghal Harbour", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 6, setBars: 14,
+    spotify: { trackId: "30hPGC552AvCu3cNiVqHG2", spotifyTitle: "Youghal Harbour (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+  { id: "the-white-blanket", name: "The White Blanket", tuneType: "Hornpipe", timeSignature: "4/4", stepBars: 6, setBars: 12,
+    spotify: { trackId: "3ZVfGj1eNfdhBHyfs8VbCQ", spotifyTitle: "The White Blanket (113)", artist: "Dean Crouch" },
+    matchStatus: "matched-exact", matchNote: "Exact match once the bracketed suffix is ignored." },
+];
+
+const MUSIC_SOURCE_META = {
+  referenceDocUrl: "https://tcrgresources.wordpress.com/wp-content/uploads/2015/09/clrgsetdances.pdf",
+  spotifyPlaylistUrl: "https://open.spotify.com/playlist/3GaJPcWlhtbikPgYbGwSaY",
+  spotifyPlaylistName: "TCRG Exam Set Music",
+  spotifyTrackCountTotal: 41,
+  spotifyTrackCountFetched: 30,
+  note: "The Spotify web player lazy-loads tracks as you scroll, so a single page fetch only returns the first ~30 of 41 tracks. The 10 tunes above with matchStatus 'unmatched' most likely exist later in the playlist — use Music Mode → Data Review to paste in their track ID once you've located them, or re-run the fetch."
+};
+
+
+</script>
+
+<script>
+/* ============================================================
+   LOGIC LAYER
+   ============================================================ */
+/**
+ * MUSIC MATCHING UTILITY
+ * Used to (re-)match a Spotify track title against a reference-document song
+ * name. Exposed in the UI (Music Mode → Data Review → "Find matches for
+ * unmatched songs") so new Spotify tracks can be matched the same way the
+ * original dataset was built, without touching this file.
+ */
+const Matching = (function () {
+
+  // Strip anything in parentheses/brackets, per spec.
+  function stripParens(str) {
+    return str.replace(/[\(\[][^\)\]]*[\)\]]/g, " ");
+  }
+
+  // Normalize for comparison: strip parens, lowercase, strip minor
+  // punctuation, collapse whitespace, drop a small set of leading articles
+  // so "The X" and "X" compare equal.
+  function normalize(str) {
+    return stripParens(str)
+      .toLowerCase()
+      .replace(/['’]/g, "")           // apostrophes
+      .replace(/[.,!?:;"“”]/g, "")    // minor punctuation
+      .replace(/^\s*the\s+/i, "")     // leading "the"
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Levenshtein distance, for fuzzy fallback when normalized strings aren't
+  // identical (handles spelling variants like "Shillelah" vs "Shilelagh").
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) d[i][0] = i;
+    for (let j = 0; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      }
+    }
+    return d[m][n];
+  }
+
+  /**
+   * Compare a reference-document name against a Spotify track title.
+   * Returns { status, similarity } where status is one of:
+   *   "matched-exact"  - identical after normalization
+   *   "matched-fuzzy"  - within edit-distance threshold (likely spelling
+   *                      variant / minor wording difference) — ALWAYS meant
+   *                      to be surfaced to the user for confirmation, never
+   *                      silently treated as certain.
+   *   "no-match"       - too different to assume they're the same song.
+   */
+  function compare(referenceName, spotifyTitle) {
+    const a = normalize(referenceName);
+    const b = normalize(spotifyTitle);
+    if (a === b) return { status: "matched-exact", similarity: 1 };
+
+    const dist = levenshtein(a, b);
+    const longer = Math.max(a.length, b.length) || 1;
+    const similarity = 1 - dist / longer;
+
+    // Fuzzy band: close enough to flag as a probable match, but always
+    // surfaced for human confirmation rather than auto-accepted silently.
+    if (similarity >= 0.72) return { status: "matched-fuzzy", similarity };
+    return { status: "no-match", similarity };
+  }
+
+  /**
+   * Given one reference tune name and a list of candidate Spotify tracks
+   * ({trackId, title, artist}), return the best candidate (or null) plus its
+   * comparison result. Used by the Data Review screen's "suggest a match"
+   * action for tunes currently marked unmatched.
+   */
+  function bestMatch(referenceName, candidates) {
+    let best = null, bestResult = { status: "no-match", similarity: -1 };
+    candidates.forEach(c => {
+      const result = compare(referenceName, c.title);
+      if (result.similarity > bestResult.similarity) {
+        best = c;
+        bestResult = result;
+      }
+    });
+    if (!best || bestResult.status === "no-match") return null;
+    return { candidate: best, result: bestResult };
+  }
+
+  return { normalize, compare, bestMatch };
+})();
+
+
+/**
+ * QUIZ ENGINE
+ * All questions are generated FROM the data files at runtime. Nothing here
+ * names a specific dance or song — add a dance to readingData.js or a tune
+ * to musicData.js and it is automatically eligible for every question type
+ * below, with no code changes required.
+ */
+const Quiz = (function () {
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function sample(arr, n) { return shuffle(arr).slice(0, n); }
+
+  function makeMC(id, type, prompt, correctText, distractorPool, meta) {
+    const distractors = sample(distractorPool.filter(d => d !== correctText), Math.min(3, distractorPool.length));
+    const options = shuffle([correctText, ...distractors]);
+    return {
+      id, type, prompt,
+      options,
+      correctIndex: options.indexOf(correctText),
+      meta: meta || {},
+    };
+  }
+
+  // ---------------- MUSIC MODE ----------------
+
+  function musicQuestionPool(musicData) {
+    const pool = [];
+    const allNames = musicData.map(t => t.name);
+    const allTuneTypes = [...new Set(musicData.map(t => t.tuneType))];
+    const allTimeSigs = [...new Set(musicData.map(t => t.timeSignature))];
+
+    musicData.forEach(tune => {
+      pool.push(() => makeMC(
+        `tune-type-${tune.id}`, "tune-type",
+        `What type of tune is "${tune.name}"?`,
+        tune.tuneType, allTuneTypes, { tuneId: tune.id }
+      ));
+
+      pool.push(() => makeMC(
+        `tune-sig-${tune.id}`, "time-signature",
+        `What time signature is "${tune.name}" in?`,
+        tune.timeSignature, allTimeSigs, { tuneId: tune.id }
+      ));
+
+      const stepPool = [...new Set(musicData.map(t => String(t.stepBars)))];
+      pool.push(() => makeMC(
+        `tune-step-${tune.id}`, "step-bars",
+        `How many bars are in the STEP of "${tune.name}"?`,
+        String(tune.stepBars), stepPool, { tuneId: tune.id }
+      ));
+
+      const setPool = [...new Set(musicData.map(t => String(t.setBars)))];
+      pool.push(() => makeMC(
+        `tune-set-${tune.id}`, "set-bars",
+        `How many bars are in the SET of "${tune.name}"?`,
+        String(tune.setBars), setPool, { tuneId: tune.id }
+      ));
+
+      // Audio-ID question, only possible when a Spotify track is matched
+      if (tune.spotify && (tune.matchStatus === "matched-exact" || tune.matchStatus === "matched-fuzzy")) {
+        pool.push(() => makeMC(
+          `tune-audio-${tune.id}`, "audio-id",
+          `Listen — which set dance tune is this?`,
+          tune.name, allNames, { tuneId: tune.id, trackId: tune.spotify.trackId }
+        ));
+      }
+    });
+
+    return pool;
+  }
+
+  function generateMusicQuiz(musicData, count, onlyAudio) {
+    // Materialize once, then filter — filtering generator *functions* before
+    // calling them isn't possible (their type isn't known until they run),
+    // so build all candidate questions first and pick from the right subset.
+    const pool = musicQuestionPool(musicData).map(fn => fn());
+    const candidates = onlyAudio ? pool.filter(q => q.type === "audio-id") : pool;
+    return sample(candidates, Math.min(count, candidates.length));
+  }
+
+  return {
+    generateMusicQuiz,
+    shuffle,
+  };
+})();
+
+
+
+/**
+ * STORE — thin localStorage wrapper.
+ * Everything here is namespaced under "irishDanceApp:" and JSON-encoded.
+ * If localStorage is unavailable (e.g. private browsing in some browsers),
+ * calls fail quietly and the app just runs without persistence.
+ */
+const Store = (function () {
+  const PREFIX = "irishDanceApp:";
+
+  function get(key, fallback) {
+    try {
+      const raw = localStorage.getItem(PREFIX + key);
+      return raw === null ? fallback : JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function set(key, value) {
+    try {
+      localStorage.setItem(PREFIX + key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // --- Manual music-match corrections (Data Review screen) ---
+  // Shape: { [tuneId]: { spotify: {trackId, spotifyTitle, artist}|null, matchStatus, matchNote } }
+  function getMusicOverrides() { return get("musicOverrides", {}); }
+  function setMusicOverride(tuneId, override) {
+    const all = getMusicOverrides();
+    all[tuneId] = override;
+    set("musicOverrides", all);
+  }
+  function clearMusicOverride(tuneId) {
+    const all = getMusicOverrides();
+    delete all[tuneId];
+    set("musicOverrides", all);
+  }
+
+  // --- Quiz stats: { [quizKey]: { attempts, correct, lastScore } } ---
+  function getStats() { return get("quizStats", {}); }
+  function recordQuizResult(quizKey, correctCount, totalCount) {
+    const stats = getStats();
+    const s = stats[quizKey] || { attempts: 0, correct: 0, total: 0, bestScore: 0 };
+    s.attempts += 1;
+    s.correct += correctCount;
+    s.total += totalCount;
+    s.bestScore = Math.max(s.bestScore, Math.round((correctCount / totalCount) * 100));
+    s.lastScore = Math.round((correctCount / totalCount) * 100);
+    stats[quizKey] = s;
+    set("quizStats", stats);
+    return s;
+  }
+
+  return {
+    get, set,
+    getMusicOverrides, setMusicOverride, clearMusicOverride,
+    getStats, recordQuizResult,
+  };
+})();
+
+
+/**
+ * RENDER HELPERS
+ * Minimal DOM-builder so app.js doesn't need innerHTML string-splicing
+ * (keeps user-supplied-looking text safe and the code easier to follow).
+ */
+function h(tag, attrs, children) {
+  const node = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(key => {
+    if (key === "class") node.className = attrs[key];
+    else if (key === "html") node.innerHTML = attrs[key];
+    else if (key.startsWith("on") && typeof attrs[key] === "function") {
+      node.addEventListener(key.slice(2).toLowerCase(), attrs[key]);
+    } else if (key === "disabled" || key === "checked" || key === "readOnly") {
+      // Boolean IDL properties: HTML treats the mere *presence* of the
+      // attribute as true, even if its value is the string "false" — so
+      // these must be set as JS properties, not via setAttribute.
+      node[key] = !!attrs[key];
+    } else if (attrs[key] !== null && attrs[key] !== undefined) {
+      node.setAttribute(key, attrs[key]);
+    }
+  });
+  (children || []).forEach(child => {
+    if (child === null || child === undefined) return;
+    if (typeof child === "string" || typeof child === "number") {
+      node.appendChild(document.createTextNode(String(child)));
+    } else {
+      node.appendChild(child);
+    }
+  });
+  return node;
+}
+
+function mount(node) {
+  const root = document.getElementById("app");
+  root.innerHTML = "";
+  root.appendChild(node);
+  window.scrollTo(0, 0);
+}
+
+// Small "beat dots" motif: renders a row of dots grouped in threes, echoing
+// the source book's "sidestep counted in threes" language. Used as a
+// lightweight visual signature across the app (progress bars, bar counts).
+function beatDots(total, filled) {
+  const wrap = h("span", { class: "beat-dots", "aria-hidden": "true" }, []);
+  for (let i = 0; i < total; i++) {
+    if (i > 0 && i % 3 === 0) wrap.appendChild(h("span", { class: "beat-gap" }, []));
+    wrap.appendChild(h("span", { class: "beat-dot" + (i < filled ? " beat-dot--filled" : "") }, []));
+  }
+  return wrap;
+}
+
+</script>
+
+<script>
+/* ============================================================
+   SPOTIFY PLAYBACK
+   Wraps Spotify's official embed *Playback SDK* — the "iFrame API"
+   (https://developer.spotify.com/documentation/embeds/references/iframe-api).
+   This is the real, documented, Spotify-sanctioned way to drive an embedded
+   player from your own page: your own button calls play()/pause(), and the
+   embed reports real playback state back via postMessage events. This is
+   NOT the same as raw <audio> access to Spotify's catalogue (which no
+   licensed integration is allowed to do) — it is Spotify's actual supported
+   mechanism for exactly this use case.
+
+   One controller is created once, hidden, and reused for every track via
+   loadUri() — this is what makes "only one track ever plays at a time"
+   trivially true (there is physically only one player), rather than
+   something the app has to police separately.
+
+   LATENCY FIX (see conversation notes): previously, the Spotify iframe-api
+   script was only requested inside play() — i.e. AFTER the user's first tap
+   — so the entire script-fetch + controller-handshake chain happened on the
+   user's perceived timeline. Now:
+     1. warmUp() kicks off script load + controller creation the moment
+        Music Mode is entered (idle time, while the user is still reading),
+        optionally seeded with the first track's URI so Spotify can start
+        preparing it as part of the same initial handshake.
+     2. preload(trackId) loads a track into the controller WITHOUT playing
+        it, called whenever a new card becomes "current" (session start,
+        Next, Previous) — so by the time the user actually presses Play,
+        the track is very likely already loaded and only a resume/play call
+        (not a full loadUri round-trip) is needed.
+     3. play(trackId) checks whether that track is already the one loaded
+        into the controller; if so it takes the fast path (resume/play
+        only), otherwise it falls back to the original cold
+        loadUri()+play() path — so nothing breaks if a track is played
+        without ever having been preloaded.
+   preload() never counts as "starting playback": it's followed by a
+   defensive pause() in case any embed configuration were to autoplay on
+   loadUri, so no audio is ever heard before a real user gesture.
+
+   FALLBACK: if the Spotify iframe-api script fails to load (blocked,
+   offline, ad-blocker, etc.) within a few seconds, the app does NOT pretend
+   playback still works. It switches to `fallbackMode`, and the UI (in
+   app.js) swaps the custom big-button player for Spotify's own plain
+   embedded widget for that track — a real, working, Spotify-compatible
+   player, just without our custom play/pause state wired to it.
+   ============================================================ */
+const SpotifyPlayer = (function () {
+  let IFrameAPI = null;
+  let controller = null;
+  let controllerReady = false;
+  let apiLoadStarted = false;
+  let apiLoadTimeout = null;
+
+  // Incremented every time initialization is (re)started — lets any
+  // in-flight async callback from a PREVIOUS attempt recognize it's been
+  // superseded (see recoverStuckInitialization()) and no-op instead of
+  // creating a second controller. This is what makes it safe to retry
+  // initialization after a suspected browser-suspension stall without any
+  // risk of ending up with duplicate players.
+  let initEpoch = 0;
+
+  let currentTrackId = null;      // track currently loaded into the controller (preloaded, playing, or paused)
+  let status = "idle";            // idle | connecting | ready | playing | paused | error
+  let fallbackMode = false;
+  let hasBeenPlayRequested = false; // true once play() has actually been called for currentTrackId
+  let lastErrorTrackId = null;      // which track the current "error" status refers to, for retry
+
+  let pendingPlayTrackId = null;    // play() requested before the controller existed
+  let pendingPreloadTrackId = null; // preload() requested before the controller existed
+
+  // Two different waits need two different budgets:
+  //  - CONNECT_TIMEOUT_MS: the FULL wait for the controller to finish
+  //    initializing in the first place. This is genuine setup time (script
+  //    fetch + Spotify's iframe handshake) and can legitimately take a few
+  //    seconds, more so on slower/mobile networks — so it gets a generous
+  //    budget.
+  //  - DEFERRED_RETRY_TIMEOUT_MS: once the controller finally becomes
+  //    ready and a play() that was waiting on it actually fires, that call
+  //    happens from inside an async SDK callback, NOT synchronously inside
+  //    the user's original click — so on browsers with strict autoplay/
+  //    gesture rules (this is materially stricter on mobile Safari/Chrome
+  //    than desktop) it can be silently rejected. That failure mode
+  //    resolves near-instantly one way or the other, so it gets a short
+  //    budget instead of reusing the long one — the user sees a retry
+  //    option quickly rather than waiting out the full window a second time.
+  let connectTimeout = null;
+  const CONNECT_TIMEOUT_MS = 8000;
+  const DEFERRED_RETRY_TIMEOUT_MS = 2500;
+
+  function clearConnectTimeout() {
+    if (connectTimeout) { clearTimeout(connectTimeout); connectTimeout = null; }
+  }
+
+  const changeListeners = [];
+  function emitChange() { changeListeners.forEach(fn => { try { fn(); } catch (e) {} }); }
+  function onChange(fn) { changeListeners.push(fn); }
+
+  // Public: what should the UI show for THIS track right now. "ready"
+  // (preloaded but not yet played) is deliberately reported as "idle" to
+  // the UI — preloading is an internal latency optimization, not a new
+  // user-facing state; the card should still read "Tap to listen".
+  function getStateFor(trackId) {
+    if (fallbackMode) return { status: "fallback" };
+    if (currentTrackId !== trackId) return { status: "idle" };
+    if (status === "error") return { status: "error" };
+    return { status: status === "ready" ? "idle" : status };
+  }
+  function isFallback() { return fallbackMode; }
+  function isControllerReady() { return controllerReady; }
+
+  // Kick off script load + controller creation as early as possible — call
+  // this the moment Music Mode is entered, not when Play is first pressed.
+  // This is the single biggest latency fix: it moves the script-fetch and
+  // iframe handshake into idle time before the user has even looked at the
+  // card, instead of onto the critical path after their first tap.
+  // Idempotent and cheap to call every time Music Mode is entered (including
+  // returning after leaving) — after the first call it's just a no-op guard
+  // check, so callers never need to know whether this is the first visit.
+  function warmUp() {
+    if (fallbackMode) return;
+    loadApi();
+  }
+
+  function loadApi() {
+    if (apiLoadStarted) return;
+    apiLoadStarted = true;
+    const myEpoch = ++initEpoch;
+
+    apiLoadTimeout = setTimeout(() => {
+      if (myEpoch !== initEpoch) return; // superseded by a recovery reset — this attempt no longer matters
+      if (!controllerReady) {
+        fallbackMode = true;
+        emitChange();
+      }
+    }, 6000);
+
+    window.onSpotifyIframeApiReady = (API) => {
+      if (myEpoch !== initEpoch) return; // a recovery reset happened since this script was requested — ignore
+      IFrameAPI = API;
+      const host = document.getElementById("spotify-controller-host");
+      host.innerHTML = ""; // clear out any iframe left behind by a superseded attempt before creating a new one
+      IFrameAPI.createController(host, { uri: "", width: "1", height: "1" }, (ctrl) => {
+        if (myEpoch !== initEpoch) return; // guard the second async hop too — same reasoning as above
+        controller = ctrl;
+        controllerReady = true;
+        clearTimeout(apiLoadTimeout);
+        controller.addListener("playback_update", (e) => {
+          // Source of truth for play/pause UI is always the real embed
+          // event — EXCEPT before the user has actually asked to play this
+          // track. preload()'s defensive pause() (there to guard against
+          // any embed config that might autoplay on loadUri) can itself
+          // trigger this same event; without this guard, that harmless
+          // defensive pause would overwrite the "ready" (preloaded, never
+          // played) state into a misleading "paused" — showing "tap to
+          // resume" for a track that was never played in the first place.
+          if (!hasBeenPlayRequested) return;
+          clearConnectTimeout(); // a real response arrived — the request did not stall
+          status = e && e.data && e.data.isPaused === false ? "playing" : "paused";
+          emitChange();
+        });
+        emitChange();
+
+        // Honor anything that was requested while we were still connecting
+        // (e.g. preloadCurrentCard() ran the instant the screen rendered,
+        // well before the controller was actually ready yet). This play()
+        // call is happening from inside an async SDK callback, not
+        // synchronously inside the user's original click — flagged as
+        // `deferred` so it gets the short failure-detection window instead
+        // of waiting out the long one a second time (see play()).
+        if (pendingPlayTrackId) {
+          const wantPlay = pendingPlayTrackId;
+          pendingPlayTrackId = null;
+          play(wantPlay, { deferred: true });
+        } else if (pendingPreloadTrackId) {
+          const wantPreload = pendingPreloadTrackId;
+          pendingPreloadTrackId = null;
+          preload(wantPreload);
+        }
+      });
+    };
+
+    const script = document.createElement("script");
+    script.src = "https://open.spotify.com/embed/iframe-api/v1";
+    script.async = true;
+    script.onerror = () => { if (myEpoch === initEpoch) { fallbackMode = true; emitChange(); } };
+    document.body.appendChild(script);
+  }
+
+  // Browsers (mobile especially — iOS Safari in particular) can throttle or
+  // fully suspend a backgrounded tab's timers and in-flight network/SDK
+  // work. If the user backgrounds the app mid-initialization (switches
+  // apps, locks the screen) and returns to find the player still stuck —
+  // neither ready nor already in fallback — a page refresh has always
+  // "fixed" this, but only because it resets the player's own internal
+  // state. This does exactly that reset, and nothing else: session state,
+  // quiz progress, and the shuffled deck all live in completely separate
+  // variables this never touches. Guarded by initEpoch so any callback
+  // from the original (stalled) attempt that eventually does resolve is
+  // recognized as stale and ignored — never creating a second controller.
+  function recoverStuckInitialization() {
+    if (fallbackMode || controllerReady) return; // nothing stuck to recover
+    clearTimeout(apiLoadTimeout);
+    initEpoch++; // invalidate any callback still in flight from the stalled attempt
+    apiLoadStarted = false;
+    controllerReady = false;
+    IFrameAPI = null;
+    controller = null;
+    loadApi();
+  }
+
+  let hiddenSince = null;
+  function handleVisibilityChange() {
+    if (document.visibilityState === "hidden") {
+      hiddenSince = Date.now();
+      return;
+    }
+    if (hiddenSince === null) return;
+    const wasHiddenMs = Date.now() - hiddenSince;
+    hiddenSince = null;
+    // Only worth attempting recovery if the tab was actually backgrounded
+    // long enough for suspension to plausibly be the cause — a quick
+    // app-switch-and-back shouldn't trigger a reset for no reason.
+    if (wasHiddenMs >= 2000) recoverStuckInitialization();
+  }
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
+
+  // Load a track into the controller WITHOUT starting playback, so that a
+  // later real play() call for the same track can skip loadUri() entirely.
+  // Safe to call proactively (card render, Next/Previous) since it never
+  // starts audio: a defensive pause immediately follows the load.
+  function preload(trackId) {
+    if (fallbackMode || !trackId) return;
+    if (currentTrackId === trackId) return; // already loaded/loading/playing this one — nothing to do
+    loadApi();
+    if (!controllerReady) { pendingPreloadTrackId = trackId; return; }
+    currentTrackId = trackId;
+    status = "ready";
+    hasBeenPlayRequested = false;
+    controller.loadUri("spotify:track:" + trackId);
+    controller.pause();
+    emitChange();
+  }
+
+  function play(trackId, opts) {
+    if (fallbackMode) return;
+    loadApi();
+    clearConnectTimeout(); // any earlier in-flight attempt is superseded by this one
+
+    const isDeferred = !!(opts && opts.deferred);
+
+    if (!controllerReady) {
+      currentTrackId = trackId;
+      status = "connecting";
+      hasBeenPlayRequested = true;
+      pendingPlayTrackId = trackId;
+      emitChange();
+      // Genuine wait for the controller to finish initializing — gets the
+      // full budget (see CONNECT_TIMEOUT_MS comment above).
+      connectTimeout = setTimeout(() => handleConnectTimeout(trackId), CONNECT_TIMEOUT_MS);
+      return;
+    }
+
+    status = "connecting";
+    hasBeenPlayRequested = true;
+    emitChange();
+    // A deferred call is one firing from inside an async SDK-ready callback
+    // rather than synchronously inside the user's click — the case most at
+    // risk of a silent autoplay/gesture rejection (materially more likely
+    // on mobile Safari/Chrome than desktop). Give it the short budget so a
+    // rejection surfaces quickly with a retry option, instead of the user
+    // waiting out the same long window twice.
+    connectTimeout = setTimeout(() => handleConnectTimeout(trackId), isDeferred ? DEFERRED_RETRY_TIMEOUT_MS : CONNECT_TIMEOUT_MS);
+
+    if (currentTrackId !== trackId) {
+      // Cold path: this track was never preloaded — load and play it now.
+      currentTrackId = trackId;
+      controller.loadUri("spotify:track:" + trackId);
+      controller.play();
+    } else {
+      // Fast path: already loaded into the controller (via preload(), the
+      // warm-up seed, or simply already being the current track) — no
+      // loadUri round trip needed, just start it.
+      (controller.resume || controller.play).call(controller);
+    }
+  }
+
+  // If Spotify's response never arrives within CONNECT_TIMEOUT_MS, stop
+  // waiting and surface a real error with a retry path — never leave the
+  // button disabled indefinitely (the only escape from that used to be a
+  // full page refresh, which loses session state; this replaces it).
+  function handleConnectTimeout(trackId) {
+    // Guard against a STALE timeout from an earlier, already-superseded
+    // attempt firing after a newer request already succeeded or moved on —
+    // only apply if this is still the in-flight request it was armed for.
+    if (currentTrackId !== trackId || status !== "connecting") return;
+    status = "error";
+    lastErrorTrackId = trackId;
+    emitChange();
+  }
+
+  // Explicit retry entry point for the UI's error-state button. Clears the
+  // stuck error state and issues a fresh play() attempt — reusing the
+  // exact same, already-warmed-up controller and preloaded track state
+  // rather than reinitializing anything.
+  function retry(trackId) {
+    status = "idle";
+    play(trackId);
+  }
+
+  function pause() {
+    clearConnectTimeout(); // moving away from this track supersedes any in-flight connect attempt for it
+    if (controller && controllerReady) controller.pause();
+    if (currentTrackId && hasBeenPlayRequested && status !== "error") status = "paused";
+    emitChange();
+  }
+
+  return { play, pause, retry, preload, warmUp, onChange, getStateFor, isFallback, isControllerReady };
+})();
+</script>
+
+<script>
+/* ============================================================
+   APP CONTROLLER
+   ============================================================ */
+/**
+ * APP CONTROLLER
+ * Hash-based router + screen renderers. All content comes from
+ * READING_DATA / MUSIC_DATA (+ Store overrides) — no dance or song name is
+ * ever hardcoded here.
+ */
+
+// ---------- data accessors (layer localStorage overrides onto MUSIC_DATA) ----------
+
+function getReadingData() { return READING_DATA; }
+
+function getMusicData() {
+  const overrides = Store.getMusicOverrides();
+  return MUSIC_DATA.map(t => {
+    if (overrides[t.id]) return Object.assign({}, t, overrides[t.id]);
+    return t;
+  });
+}
+
+// ---------- small shared UI pieces ----------
+
+function topbar() {
+  return h("div", { class: "topbar" }, [
+    h("a", { class: "topbar__brand", href: "#/", onClick: (e) => { e.preventDefault(); location.hash = "#/"; } }, [
+      "Céilí Prep",
+      h("small", {}, ["An Coimisiún · Test Practice"]),
+    ]),
+  ]);
+}
+
+function footer() {
+  return h("div", { class: "app-footer" }, [
+    "Source: Ár Rincí Céilí (An Coimisiún le Rincí Gaelacha, 2014) · Music Exam Set Dance reference & Spotify playlist. Built for practice — always verify against official CLRG materials."
+  ]);
+}
+
+function crumb(text) {
+  const hash = location.hash || "";
+  const kind = hash.startsWith("#/reading") ? " crumb--reading" : "";
+  return h("div", { class: "crumb" + kind }, [text]);
+}
+
+function page(children) {
+  const hash = location.hash || "#/";
+  // Deeper "activity" routes (anything under a mode, but not the mode's
+  // own landing page — that gets the full mode-banner instead) get a
+  // quiet mode-colored accent instead, so they still say "you're in
+  // Music/Reading Mode" without repeating the big banner on every screen.
+  const mode = hash.indexOf("#/music/") === 0 ? "music" : hash.indexOf("#/reading/") === 0 ? "reading" : "";
+  const cls = "page" + (mode ? " activity-accent activity-accent--" + mode : "");
+  return h("div", { class: cls }, [backButton(), ...children]);
+}
+
+// ---------- ROUTER ----------
+
+// The app understands three levels, and the Back button always resolves to
+// the correct PARENT LEVEL — not "whatever screen was visited before this
+// one" (that's a history stack, which is exactly what produces wrong
+// results here: e.g. Listen & Identify -> Browse Tunes -> Metadata Quiz ->
+// Back would retrace through Browse Tunes instead of jumping straight to
+// Music Mode's home, and multiple hops through different activities in the
+// same mode would need multiple Back presses to escape the mode at all).
+// Classifying the CURRENT route is enough to know the correct parent —
+// no history tracking, no stack, no risk of it drifting out of sync with
+// reality.
+//
+//   home      "#/"                        -> no parent (Back button hidden)
+//   mode      "#/music", "#/reading"      -> parent is Home ("#/")
+//   activity  anything else under         -> parent is that mode's home
+//             "#/music/..." or "#/reading/..."
+function classifyRoute(hash) {
+  hash = hash || "#/";
+  if (hash === "#/") return { level: "home" };
+  if (hash === "#/music") return { level: "mode", mode: "music" };
+  if (hash === "#/reading") return { level: "mode", mode: "reading" };
+  if (hash.indexOf("#/music/") === 0) return { level: "activity", mode: "music" };
+  if (hash.indexOf("#/reading/") === 0) return { level: "activity", mode: "reading" };
+  return { level: "home" }; // unrecognized route — safest fallback is "nowhere to go back to"
+}
+
+function getBackTarget(hash) {
+  const info = classifyRoute(hash);
+  if (info.level === "home") return null;
+  if (info.level === "mode") return "#/";
+  return "#/" + info.mode; // activity -> that mode's own home page
+}
+
+function goBack() {
+  const target = getBackTarget(location.hash || "#/");
+  if (target === null) return; // shouldn't be reachable — the button is hidden on Home
+  // A plain hash assignment — identical, from the app's perspective, to the
+  // user clicking a nav link to that same destination. No page refresh, no
+  // extra reset logic beyond whatever that screen's own render function
+  // already does on a normal visit, so nothing here can destroy session
+  // state beyond what already happens when reaching that screen any other
+  // way (see individual render functions — unchanged).
+  location.hash = target;
+}
+
+function backButton() {
+  if (getBackTarget(location.hash || "#/") === null) return null; // never shown on Home
+  return h("button", { class: "back-button", onClick: goBack, "aria-label": "Back" }, [
+    h("span", { "aria-hidden": "true" }, ["←"]),
+    "Back",
+  ]);
+}
+
+function router() {
+  const hash = location.hash || "#/";
+  const parts = hash.replace(/^#\//, "").split("/").filter(Boolean);
+
+  // One central place to mark which environment we're in, so CSS (the
+  // subtle per-mode background tint) can respond without every individual
+  // screen needing to set it itself.
+  document.body.dataset.mode = parts[0] === "music" ? "music" : parts[0] === "reading" ? "reading" : "";
+
+  if (parts.length === 0) return renderHome();
+
+  if (parts[0] === "reading") {
+    if (parts.length === 1) return renderReadingModeSelect();
+    if (parts[1] === "browse") return renderReadingBrowse();
+    if (parts[1] === "dance" && parts[2]) return renderDanceDetail(parts[2]);
+    if (parts[1] === "study" && (parts[2] === "easy" || parts[2] === "hard")) return renderReadingStudy(parts[2]);
+    // legacy routes from the old quiz/ordering/flashcards system redirect to the mode picker
+    if (parts[1] === "quiz" || parts[1] === "flashcards" || parts[1] === "ordering") return renderReadingModeSelect();
+  }
+
+  if (parts[0] === "music") {
+    if (parts.length === 1) return renderMusicHub();
+    if (parts[1] === "browse") return renderMusicBrowse();
+    if (parts[1] === "quiz") return renderMusicQuiz();
+    if (parts[1] === "flashcards") return renderMusicHub(); // superseded by the Listen & Identify home screen
+    if (parts[1] === "review") return renderMusicDataReview();
+  }
+
+  return renderHome();
+}
+
+window.addEventListener("hashchange", router);
+window.addEventListener("DOMContentLoaded", router);
+
+// ================================================================
+// HOME
+// ================================================================
+
+// Small, sophisticated line-art icons (not emoji/decorative clip-art) used
+// wherever Music/Reading need a quick, non-text identity marker: the Home
+// cards, and each mode's own banner header.
+function modeIconSvg(kind) {
+  if (kind === "music") {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`;
+  }
+  // reading
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.5-1.2-3.5-2-6-2v13c2.5 0 4.5.8 6 2 1.5-1.2 3.5-2 6-2V4.5c-2.5 0-4.5.8-6 2z"/><path d="M12 6.5v13"/></svg>`;
+}
+
+function modeIconEl(kind, className) {
+  const el = h("div", { class: className }, []);
+  el.innerHTML = modeIconSvg(kind);
+  return el;
+}
+
+// Strong "you are here" banner used once per mode — on that mode's own
+// landing screen only (Listen & Identify / Study picker). Deeper activity
+// screens use the lighter .activity-accent treatment instead, so Home,
+// Mode, and Activity read as three visually distinct levels rather than
+// the same header repeated everywhere.
+function modeBanner(mode, eyebrow, title, subtitle) {
+  return h("div", { class: "mode-banner mode-banner--" + mode }, [
+    modeIconEl(mode, "mode-banner__icon"),
+    h("div", { class: "mode-banner__eyebrow" }, [eyebrow]),
+    h("h1", { class: "mode-banner__title" }, [title]),
+    h("p", { class: "mode-banner__subtitle" }, [subtitle]),
+  ]);
+}
+
+function renderHome() {
+  const wrap = h("div", {}, [
+    topbar(),
+    h("div", { class: "hero" }, [
+      crumb("Ár Rincí Céilí · Study Tool"),
+      h("h1", {}, ["Irish Dancing Test"]),
+      h("p", {}, ["Practice the movements, bar counts, and music of the thirty CLRG céilí dances — and the set-dance tunes for your music exam — until they're second nature."]),
+    ]),
+    h("div", { class: "mode-grid" }, [
+      h("button", { class: "mode-card mode-card--music", onClick: () => location.hash = "#/music" }, [
+        modeIconEl("music", "mode-card__icon"),
+        h("div", { class: "mode-card__title" }, ["Music Mode"]),
+        h("p", { class: "mode-card__tagline" }, ["Listen and identify the music."]),
+        h("p", { class: "mode-card__desc" }, ["Hear a set-dance tune, guess it, then flip to check — matched against the exam reference table."]),
+        h("span", { class: "mode-card__cta" }, ["Practice music →"]),
+      ]),
+      h("button", { class: "mode-card mode-card--reading", onClick: () => location.hash = "#/reading" }, [
+        modeIconEl("reading", "mode-card__icon"),
+        h("div", { class: "mode-card__title" }, ["Reading Mode"]),
+        h("p", { class: "mode-card__tagline" }, ["Practice dances, movements, bars, and order."]),
+        h("p", { class: "mode-card__desc" }, ["Recall each dance's name, its movements, and the exact order the book teaches them in."]),
+        h("span", { class: "mode-card__cta" }, ["Practice reading →"]),
+      ]),
+    ]),
+    footer(),
+  ]);
+  mount(wrap);
+}
+
+// ================================================================
+// READING MODE
+// ================================================================
+
+function readingModeMenu(active) {
+  const items = [
+    ["study", "Study (Easy/Hard)", "#/reading"],
+    ["browse", "Browse all 30 dances", "#/reading/browse"],
+  ];
+  return h("div", { class: "tab-strip tab-strip--reading" }, items.map(([key, label, url]) =>
+    h("button", { "aria-current": String(active === key), onClick: () => location.hash = url }, [label])
+  ));
+}
+
+function renderReadingBrowse() {
+  const data = getReadingData();
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb("Reading Mode / Browse"),
+      h("h1", { class: "page-title" }, ["All 30 dances"]),
+      p_lede("Tap a dance to see its full movement list as extracted from the source book."),
+      readingModeMenu("browse"),
+      h("div", { class: "section-grid" }, data.map(d =>
+        h("button", { class: "tile", onClick: () => location.hash = `#/reading/dance/${d.id}` }, [
+          h("div", { class: "tile__num" }, [`No. ${d.number}`]),
+          h("div", { class: "tile__irish" }, [d.irishName]),
+          h("div", { class: "tile__english" }, [d.englishName]),
+        ])
+      )),
+    ]),
+    footer(),
+  ]));
+}
+
+function p_lede(text) { return h("p", { class: "page-lede" }, [text]); }
+
+function barsCell(bars) {
+  const wrap = h("span", {}, [String(bars) + " "]);
+  wrap.appendChild(beatDots(Math.min(bars, 24), Math.min(bars, 24)));
+  return wrap;
+}
+
+function renderDanceDetail(id) {
+  const dance = getReadingData().find(d => d.id === id);
+  if (!dance) return renderReadingBrowse();
+
+  const sections = dance.sections.map(section =>
+    h("div", { class: "section-block" }, [
+      h("div", { class: "section-block__title" }, [section.title]),
+      h("div", { class: "table-scroll" }, [
+        h("table", { class: "movements" }, [
+          h("thead", {}, [h("tr", {}, [
+            h("th", {}, ["#"]), h("th", {}, ["Irish"]), h("th", {}, ["English"]), h("th", {}, ["Bars"]),
+          ])]),
+          h("tbody", {}, section.movements.map(m =>
+            h("tr", {}, [
+              h("td", { class: "mov-order" }, [String(m.order)]),
+              h("td", { class: "mov-irish" }, [m.irish]),
+              h("td", {}, [m.english + (m.tune ? ` (${m.tune})` : "")]),
+              h("td", { class: "mov-bars" }, [
+                typeof m.bars === "number" ? barsCell(m.bars) : h("span", { class: "bars-unstated" }, ["not stated in source"]),
+              ]),
+            ])
+          )),
+        ]),
+      ]),
+    ])
+  );
+
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb(`Reading Mode / Browse / No. ${dance.number}`),
+      h("div", { class: "dance-header" }, [
+        h("h1", { class: "dance-header__irish" }, [dance.irishName]),
+        h("div", { class: "dance-header__english" }, [dance.englishName]),
+        h("div", { class: "meta-tags" }, [
+          h("span", { class: "meta-tag" }, [dance.meter]),
+          h("span", { class: "meta-tag" }, [dance.formation]),
+          h("span", { class: "meta-tag" }, [`pp. ${dance.page}`]),
+        ]),
+      ]),
+      ...sections,
+      dance.structureNotes ? h("div", { class: "notes-box" }, [dance.structureNotes]) : null,
+      h("div", { class: "btn-row" }, [
+        h("button", { class: "btn btn--ghost", onClick: () => location.hash = "#/reading/browse" }, ["← Back to all dances"]),
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+// ---------- Reading quiz (stateful session) ----------
+
+// ---------------- Reading Mode: Study (Easy / Hard) ----------------
+//
+// This is the primary Reading Mode experience: pick a difficulty, then
+// answer randomized questions built directly from READING_DATA (no
+// hardcoded dance content). See the block comment above READING_DATA for
+// the data model this all reads from.
+
+let studySession = null;
+
+// A small local Levenshtein distance, used only for tolerant dance-name
+// matching (typos/case/punctuation) — deliberately a *stricter* threshold
+// than Matching.compare's fuzzy-song-title band, since this is grading a
+// recall quiz, not proposing a probable song match.
+function levenshteinLocal(a, b) {
+  const m = a.length, n = b.length;
+  const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) d[i][0] = i;
+  for (let j = 0; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+    }
+  }
+  return d[m][n];
+}
+
+function normalizeForRecall(str) {
+  return String(str || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // strip accents
+    .replace(/[^a-z0-9\s]/g, "")   // strip punctuation (apostrophes, periods, etc.)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Tolerant of case/punctuation/whitespace differences; NOT tolerant of a
+// genuinely different answer — small edit-distance budget scaled to length.
+function checkDanceNameAnswer(userInput, dance) {
+  const a = normalizeForRecall(userInput);
+  const b = normalizeForRecall(dance.englishName);
+  if (!a) return false;
+  if (a === b) return true;
+  const threshold = Math.max(1, Math.floor(b.length * 0.12));
+  return levenshteinLocal(a, b) <= threshold;
+}
+
+function sameMovementOrder(a, b) {
+  return a.length === b.length && a.every((m, i) => b[i] && m.irish === b[i].irish && m.section === b[i].section);
+}
+
+// Shuffle a movement list, guaranteeing the result isn't accidentally the
+// already-correct order (required by spec — otherwise a "correct by luck"
+// shuffle would let a user pass without doing anything).
+function shuffleMovementsForQuestion(list) {
+  if (list.length < 2) return list.slice();
+  let attempt = Quiz.shuffle(list);
+  let tries = 0;
+  while (sameMovementOrder(attempt, list) && tries < 12) { attempt = Quiz.shuffle(list); tries++; }
+  if (sameMovementOrder(attempt, list)) {
+    // Deterministic fallback (matters most for 2-item lists, where a
+    // shuffle has only two possible outcomes): force a swap.
+    attempt = list.slice();
+    [attempt[0], attempt[1]] = [attempt[1], attempt[0]];
+  }
+  return attempt;
+}
+
+// "Number of Bars" is only well-defined as a single number when the whole
+// dance is one flat, fully-numeric movement list (progressive/round/long
+// dances) — for the Lead-Around/Body/Figures structured dances the Body is
+// danced multiple times per the book's own instructions, so a single
+// "total" isn't something the source actually states. In that case (or
+// whenever some movement's bars aren't stated), ask about ONE specific,
+// clearly-named movement instead — never invent a total that isn't in the
+// source, and always make explicit which figure is being asked about.
+function buildBarsQuestion(dance, section) {
+  const allNumericInSection = section.movements.every(m => typeof m.bars === "number");
+  if (dance.sections.length === 1 && allNumericInSection) {
+    const total = section.movements.reduce((sum, m) => sum + m.bars, 0);
+    return {
+      type: "total",
+      // NOTE: deliberately does NOT name the dance — this prompt is only
+      // ever shown in Hard Mode, directly below the "what dance is this?"
+      // input, so naming it here would hand over the answer to that
+      // separate, supposedly-independent recall question.
+      prompt: `How many bars does this dance add up to in total — all movements, once through?`,
+      correctAnswer: total,
+    };
+  }
+  const inSection = section.movements.filter(m => typeof m.bars === "number");
+  const pool = inSection.length ? inSection.map(m => ({ ...m, section: section.title })) : flattenDanceMovements(dance).filter(m => typeof m.bars === "number");
+  if (!pool.length) return null; // nothing numeric stated anywhere — don't fabricate, just skip this component
+  const target = pool[Math.floor(Math.random() * pool.length)];
+  return {
+    type: "single",
+    prompt: `How many bars is the movement "${target.english}" (${target.section})?`,
+    correctAnswer: target.bars,
+  };
+}
+
+function pickReadingQuestion(avoidDanceId) {
+  const data = getReadingData();
+  const candidates = [];
+  data.forEach(dance => {
+    dance.sections.forEach(section => {
+      if (section.movements.length >= 2) candidates.push({ dance, section });
+    });
+  });
+  let pool = candidates.filter(c => c.dance.id !== avoidDanceId);
+  if (!pool.length) pool = candidates; // only happens if the dataset were tiny; guards against a dead end
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+
+  const correctOrder = pick.section.movements.map(m => ({ ...m, section: pick.section.title }));
+  const shuffled = shuffleMovementsForQuestion(correctOrder);
+  const barsQuestion = buildBarsQuestion(pick.dance, pick.section);
+
+  return { dance: pick.dance, section: pick.section, correctOrder, shuffled, barsQuestion };
+}
+
+function startStudyQuestion(mode, avoidDanceId) {
+  const q = pickReadingQuestion(avoidDanceId);
+  studySession = {
+    mode,
+    dance: q.dance,
+    section: q.section,
+    correctOrder: q.correctOrder,
+    userOrder: q.shuffled.slice(),
+    barsQuestion: q.barsQuestion,
+    nameInput: "",
+    barsInput: "",
+    submitted: false,
+    result: null,
+  };
+}
+
+function renderReadingModeSelect() {
+  mount(h("div", {}, [
+    topbar(),
+    modeBanner("reading", "Reading Mode", "Study the Dances", "Practice dance names, movements, bars, and order."),
+    page([
+      h("div", { class: "centered-page-header" }, [
+        p_lede("Choose a difficulty. Every question is pulled at random from all 30 dances — the same dance can come up again later, but its movement order is reshuffled fresh each time."),
+        readingModeMenu("study"),
+        h("div", { class: "reading-option-compare" }, [
+          h("p", {}, [h("strong", {}, ["Study — "]), "Practice and test your knowledge of dance names, movements, bars, and movement order."]),
+          h("p", {}, [h("strong", {}, ["Browse all 30 dances — "]), "Review all 30 dances and their movements without taking a quiz."]),
+        ]),
+      ]),
+      h("div", { class: "mode-grid reading-choice-grid", style: "margin-top:6px;" }, [
+        h("button", { class: "mode-card mode-card--accent-thread", onClick: () => location.hash = "#/reading/study/easy" }, [
+          h("div", { class: "mode-card__title" }, ["Easy Mode"]),
+          h("p", { class: "mode-card__desc" }, [
+            "The dance name is given, and every movement shows its bar count. Just put the movements back into the order the book teaches them."
+          ]),
+          h("span", { class: "mode-card__cta" }, ["Start Easy →"]),
+        ]),
+        h("button", { class: "mode-card mode-card--accent-brass", onClick: () => location.hash = "#/reading/study/hard" }, [
+          h("div", { class: "mode-card__title" }, ["Hard Mode"]),
+          h("p", { class: "mode-card__desc" }, [
+            "Recall the dance's name and a specific bar count from memory, then reorder its movements without the bar-count crutch."
+          ]),
+          h("span", { class: "mode-card__cta" }, ["Start Hard →"]),
+        ]),
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+function renderReadingStudy(mode) {
+  if (!studySession || studySession.mode !== mode) startStudyQuestion(mode, null);
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb(`Reading Mode / ${mode === "easy" ? "Easy Mode" : "Hard Mode"}`),
+      h("h1", { class: "page-title" }, [mode === "easy" ? "Easy Mode" : "Hard Mode"]),
+      p_lede(mode === "easy"
+        ? "The dance name and each movement's bars are shown — reorder the movements to match the book."
+        : "Type the dance name and the bar count from memory, then reorder the movements."),
+      readingModeMenu("study"),
+      h("div", { id: "study-container" }, []),
+    ]),
+    footer(),
+  ]));
+  paintStudyScreen();
+}
+
+function paintStudyScreen() {
+  const container = document.getElementById("study-container");
+  if (!container) return;
+  container.innerHTML = "";
+  container.appendChild(studySession.submitted ? renderStudyResult() : renderStudyQuestion());
+}
+
+function fieldLabel(text) {
+  return h("label", { class: "field-label" }, [text]);
+}
+
+function renderStudyQuestion() {
+  const s = studySession;
+  const children = [];
+  let stepNum = 1;
+
+  if (s.mode === "easy") {
+    children.push(h("div", { class: "card study-dance-card" }, [
+      h("div", { class: "field-label" }, ["Dance"]),
+      h("div", { class: "study-dance-name" }, [s.dance.englishName]),
+      h("div", { class: "study-dance-sub" }, [`${s.dance.irishName} · ${s.section.title}`]),
+    ]));
+  } else {
+    children.push(h("div", { class: "card" }, [
+      fieldLabel(`${stepNum++}. What dance is this? (English name is enough)`),
+      h("input", {
+        class: "text-input", placeholder: "e.g. Walls of Limerick", value: s.nameInput,
+        oninput: (e) => { s.nameInput = e.target.value; },
+      }, []),
+      h("div", { style: "font-size:0.8rem; color:#8a7a86; margin-top:6px;" }, [
+        s.section.title === "Movements"
+          ? "(You're being shown its movements below.)"
+          : `(You're being shown its "${s.section.title}" movements below.)`
+      ]),
+    ]));
+
+    if (s.barsQuestion) {
+      children.push(h("div", { class: "card" }, [
+        fieldLabel(`${stepNum++}. ${s.barsQuestion.prompt}`),
+        h("input", {
+          class: "text-input", type: "text", inputmode: "numeric", placeholder: "Number of bars", value: s.barsInput,
+          oninput: (e) => { s.barsInput = e.target.value; },
+        }, []),
+      ]));
+    }
+  }
+
+  children.push(h("div", { class: "card" }, [
+    fieldLabel(`${s.mode === "hard" ? stepNum + ". " : ""}Arrange the movements in the correct order${s.section.title === "Movements" ? "" : ` (${s.section.title})`}`),
+    renderMovementOrderer(),
+  ]));
+
+  children.push(h("div", { class: "btn-row" }, [
+    h("button", { class: "btn btn--brass btn--big", onClick: submitStudyAnswer }, ["Check answer"]),
+  ]));
+
+  return h("div", {}, children);
+}
+
+function renderMovementOrderer() {
+  const s = studySession;
+  const rows = s.userOrder.map((m, i) => h("div", { class: "orderer-row", id: "orderer-row-" + i }, [
+    h("div", { class: "orderer-row__num" }, [String(i + 1)]),
+    h("div", { class: "orderer-row__content" }, [
+      h("div", { class: "orderer-row__irish" }, [m.irish]),
+      h("div", { class: "orderer-row__english" }, [m.english]),
+      s.mode === "easy" ? h("div", { class: "orderer-row__bars" }, [
+        typeof m.bars === "number" ? `${m.bars} bars` : "bars not stated in source"
+      ]) : null,
+    ]),
+    h("div", { class: "orderer-row__controls" }, [
+      h("button", { class: "orderer-btn", disabled: i === 0, "aria-label": `Move "${m.english}" up`, onClick: () => moveMovement(i, -1) }, ["↑"]),
+      h("button", { class: "orderer-btn", disabled: i === s.userOrder.length - 1, "aria-label": `Move "${m.english}" down`, onClick: () => moveMovement(i, 1) }, ["↓"]),
+    ]),
+  ]));
+  return h("div", { class: "orderer-list" }, rows);
+}
+
+function moveMovement(index, dir) {
+  const s = studySession;
+  const newIndex = index + dir;
+  if (newIndex < 0 || newIndex >= s.userOrder.length) return;
+  const arr = s.userOrder;
+  const tmp = arr[index]; arr[index] = arr[newIndex]; arr[newIndex] = tmp;
+  paintStudyScreen();
+  // Brief, purposeful highlight on the two rows that just swapped — this is
+  // the "visual feedback when a movement is being moved" the design calls
+  // for, not decoration: without it, a swap just teleports with no cue that
+  // anything happened. Respects prefers-reduced-motion via the CSS itself.
+  [index, newIndex].forEach(pos => {
+    const el = document.getElementById("orderer-row-" + pos);
+    if (!el) return;
+    el.classList.add("orderer-row--moved");
+    setTimeout(() => el.classList.remove("orderer-row--moved"), 450);
+  });
+}
+
+function submitStudyAnswer() {
+  const s = studySession;
+  const result = { orderCorrect: sameMovementOrder(s.userOrder, s.correctOrder) };
+
+  if (s.mode === "hard") {
+    result.nameCorrect = checkDanceNameAnswer(s.nameInput, s.dance);
+    if (s.barsQuestion) {
+      const parsed = parseInt(String(s.barsInput).replace(/[^0-9-]/g, ""), 10);
+      result.barsCorrect = !isNaN(parsed) && parsed === s.barsQuestion.correctAnswer;
+    } else {
+      result.barsCorrect = null; // not applicable for this dance — not scored
+    }
+  }
+
+  s.result = result;
+  s.submitted = true;
+  paintStudyScreen();
+}
+
+function resultLine(label, correct) {
+  if (correct === null) {
+    return h("div", { class: "result-line" }, [
+      h("span", { style: "font-weight:600;" }, [label]),
+      h("span", { style: "font-family:var(--font-mono); color:#9a8b96;" }, ["N/A for this dance"]),
+    ]);
+  }
+  return h("div", { class: "result-line" }, [
+    h("span", { style: "font-weight:600;" }, [label]),
+    h("span", { style: `font-family:var(--font-mono); color:${correct ? "var(--leaf)" : "var(--thread)"};` }, [correct ? "✓ Correct" : "✕ Incorrect"]),
+  ]);
+}
+
+function orderList(list, compareAgainst, showBars) {
+  return h("ol", { class: "order-compare-list" }, list.map((m, i) => {
+    const mismatch = compareAgainst ? !(compareAgainst[i] && compareAgainst[i].irish === m.irish) : false;
+    return h("li", { class: mismatch ? "order-compare-list__item order-compare-list__item--mismatch" : "order-compare-list__item" }, [
+      // Non-color cue alongside the color (accessibility: never rely on
+      // color alone) — a small ✕ marks a wrong slot, a quiet ✓ confirms a
+      // right one, only shown once we actually have something to compare.
+      compareAgainst ? h("span", { class: "order-compare-list__mark", "aria-hidden": "true" }, [mismatch ? "✕ " : "✓ "]) : null,
+      `${m.english}` + (showBars && typeof m.bars === "number" ? ` (${m.bars} bars)` : "")
+    ]);
+  }));
+}
+
+function renderOrderComparison() {
+  const s = studySession;
+  const showBars = s.mode === "easy";
+  if (s.result.orderCorrect) {
+    return h("div", { class: "card" }, [
+      h("div", { class: "field-label" }, ["Order"]),
+      orderList(s.correctOrder, null, showBars),
+    ]);
+  }
+  return h("div", { class: "card" }, [
+    h("div", { class: "order-compare-grid" }, [
+      h("div", {}, [
+        h("div", { class: "field-label", style: "color:var(--thread);" }, ["Your order"]),
+        orderList(s.userOrder, s.correctOrder, showBars),
+      ]),
+      h("div", {}, [
+        h("div", { class: "field-label", style: "color:var(--leaf);" }, ["Correct order"]),
+        orderList(s.correctOrder, null, showBars),
+      ]),
+    ]),
+  ]);
+}
+
+function renderStudyResult() {
+  const s = studySession;
+  const children = [];
+
+  if (s.mode === "easy") {
+    children.push(h("div", {
+      class: "card",
+      style: `border-left:4px solid ${s.result.orderCorrect ? "var(--leaf)" : "var(--thread)"};`,
+    }, [
+      h("div", { style: `font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:${s.result.orderCorrect ? "var(--leaf)" : "var(--thread)"};` }, [
+        s.result.orderCorrect ? "✓ Correct!" : "✕ Not quite."
+      ]),
+    ]));
+  } else {
+    children.push(h("div", { class: "card" }, [
+      h("div", { style: "font-size:0.85rem; color:#6b5c67; margin-bottom:10px;" }, [
+        `This round: ${s.dance.englishName} (${s.dance.irishName}) — ${s.section.title}`
+      ]),
+      resultLine("Dance Name", s.result.nameCorrect),
+      s.barsQuestion ? resultLine("Number of Bars", s.result.barsCorrect) : resultLine("Number of Bars", null),
+      resultLine("Movement Order", s.result.orderCorrect),
+    ]));
+  }
+
+  children.push(renderOrderComparison());
+
+  if (s.mode === "hard" && !s.result.nameCorrect) {
+    children.push(h("div", { class: "notes-box" }, [`Correct dance: ${s.dance.englishName} (${s.dance.irishName})`]));
+  }
+  if (s.mode === "hard" && s.barsQuestion && !s.result.barsCorrect) {
+    children.push(h("div", { class: "notes-box" }, [`Correct answer: ${s.barsQuestion.correctAnswer} bars. Question was: ${s.barsQuestion.prompt}`]));
+  }
+
+  children.push(h("div", { class: "btn-row" }, [
+    h("button", { class: "btn btn--brass btn--big", onClick: () => {
+      const prevId = s.dance.id;
+      startStudyQuestion(s.mode, prevId);
+      renderReadingStudy(s.mode);
+    }}, ["Next question →"]),
+  ]));
+
+  return h("div", {}, children);
+}
+
+
+// ================================================================
+// MUSIC MODE
+// ================================================================
+
+function musicModeMenu(active) {
+  const items = [
+    ["listen", "Listen & Identify", "#/music", "Listen to a tune, identify it, then reveal the song's name, time signature, step, and set."],
+    ["browse", "Browse tunes", "#/music/browse", "Browse the tunes in the collection and review their names, time signatures, steps, and sets."],
+    ["quiz", "Metadata quiz", "#/music/quiz", "Test your knowledge of tune details such as time signature, step, and set."],
+    ["review", "Data review", "#/music/review", "Review the music data and check that each tune is matched to the correct Spotify track."],
+  ];
+  const activeItem = items.find(i => i[0] === active);
+  return h("div", { class: "tab-strip-group" }, [
+    h("div", { class: "tab-strip tab-strip--music" }, items.map(([key, label, url]) =>
+      h("button", { "aria-current": String(active === key), onClick: () => location.hash = url }, [label])
+    )),
+    activeItem ? h("p", { class: "tab-strip__hint" }, [activeItem[3]]) : null,
+  ]);
+}
+
+// ---------------- Listen & Identify (the primary Music Mode experience) ----------------
+//
+// SESSION BEHAVIOR: a fresh shuffled session is created every time the user
+// *navigates into* Music Mode's root route (#/music) — including returning
+// to it after visiting Browse/Quiz/Data Review, or after leaving the app
+// entirely. Card flips and Next/Previous do NOT re-shuffle — they just move
+// a pointer through the one fixed random order for this session, per spec.
+
+let musicSession = null;
+
+function startNewMusicSession() {
+  const data = getMusicData();
+  const playable = data.filter(t => t.spotify && (t.matchStatus === "matched-exact" || t.matchStatus === "matched-fuzzy"));
+  musicSession = {
+    deck: Quiz.shuffle(playable),
+    index: 0,
+    flipped: false,
+    excludedCount: data.length - playable.length,
+  };
+}
+
+function renderMusicHub() {
+  startNewMusicSession();
+  // Kick off the Spotify controller setup the instant Music Mode is
+  // entered — while the user is still reading the card, not after their
+  // first tap — and preload this session's first card into it. Both calls
+  // are safe to make every time (including returning after leaving): warmUp
+  // is a no-op once the controller already exists, and preload() just skips
+  // straight to loading this track since the controller is already there.
+  if (musicSession.deck.length) {
+    SpotifyPlayer.warmUp();
+    SpotifyPlayer.preload(musicSession.deck[0].spotify.trackId);
+  }
+  mount(h("div", {}, [
+    topbar(),
+    modeBanner("music", "Music Mode", "Listen & Identify", "Listen, identify, and master the tunes."),
+    page([
+      h("div", { class: "centered-page-header" }, [
+        p_lede(
+          musicSession.deck.length
+            ? `Press play, guess the tune from the music, then reveal the answer.` +
+              (musicSession.excludedCount ? ` (${musicSession.excludedCount} tune${musicSession.excludedCount === 1 ? "" : "s"} excluded until matched — see Data Review.)` : "")
+            : `No tunes are matched to audio yet.`
+        ),
+        musicModeMenu("listen"),
+      ]),
+      musicSession.deck.length ? renderListenSession() : h("div", { class: "empty-state" }, [
+        "Nothing to play yet — head to Data Review to match a tune to a Spotify track first."
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+function renderListenSession() {
+  const container = h("div", { id: "audio-session" }, []);
+  paintMusicCard(container);
+  return container;
+}
+
+function getCurrentTune() { return musicSession.deck[musicSession.index]; }
+
+function sessionProgressRow() {
+  const dots = musicSession.deck.map((_, i) =>
+    h("span", { class: "session-progress__dot"
+      + (i === musicSession.index ? " session-progress__dot--current" : i < musicSession.index ? " session-progress__dot--done" : "") }, [])
+  );
+  return h("div", { class: "session-progress" }, [
+    `Tune ${musicSession.index + 1} of ${musicSession.deck.length}`,
+    h("span", { class: "session-progress__dots" }, dots),
+  ]);
+}
+
+function playIconSvg(status) {
+  if (status === "playing") {
+    return `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
+  }
+  if (status === "connecting") {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" stroke-dasharray="38" stroke-dashoffset="12"/></svg>`;
+  }
+  if (status === "error") {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+}
+
+function playbackStatusLabel(state) {
+  if (state.status === "playing") return "Playing — tap to pause";
+  if (state.status === "connecting") return "Preparing audio…";
+  if (state.status === "paused") return "Paused — tap to resume";
+  if (state.status === "error") return "Couldn't start playback — tap to retry";
+  return "Tap to listen";
+}
+
+function metaCell(label, value) {
+  return h("div", { class: "audio-meta-cell" }, [
+    h("span", { class: "audio-meta-cell__label" }, [label]),
+    h("span", { class: "audio-meta-cell__value" }, [value]),
+  ]);
+}
+
+function toggleMusicPlayback(tune) {
+  const state = SpotifyPlayer.getStateFor(tune.spotify.trackId);
+  if (state.status === "playing") SpotifyPlayer.pause();
+  else if (state.status === "error") SpotifyPlayer.retry(tune.spotify.trackId);
+  else SpotifyPlayer.play(tune.spotify.trackId);
+}
+
+function renderCardFront(tune) {
+  const state = SpotifyPlayer.getStateFor(tune.spotify.trackId);
+
+  if (SpotifyPlayer.isFallback()) {
+    return h("div", { class: "audio-face audio-face--front" }, [
+      h("div", { class: "audio-face__eyebrow" }, ["LISTEN & GUESS"]),
+      h("div", { class: "audio-face__status" }, ["Custom player unavailable — using Spotify's own widget below."]),
+      spotifyEmbed(tune.spotify.trackId),
+      h("div", { class: "audio-fallback-note" }, ["Falling back to Spotify's embedded player (the enhanced controls script didn't load)."]),
+      h("button", { class: "btn btn--ghost", onClick: (e) => { e.stopPropagation(); flipMusicCard(); } }, ["Reveal answer ↓"]),
+    ]);
+  }
+
+  const btn = h("button", {
+    class: "audio-playbtn"
+      + (state.status === "playing" ? " audio-playbtn--playing" : "")
+      + (state.status === "error" ? " audio-playbtn--error" : ""),
+    "aria-label": state.status === "playing" ? "Pause" : state.status === "error" ? "Retry" : "Play",
+    disabled: state.status === "connecting",
+    onClick: (e) => { e.stopPropagation(); toggleMusicPlayback(tune); },
+  }, []);
+  btn.innerHTML = playIconSvg(state.status); // set after h() so the click listener above stays attached
+
+  return h("div", { class: "audio-face audio-face--front" }, [
+    h("div", { class: "audio-face__eyebrow" }, ["LISTEN & GUESS"]),
+    btn,
+    h("div", { class: "audio-face__status" + (state.status === "error" ? " audio-face__status--error" : "") }, [playbackStatusLabel(state)]),
+    h("button", { class: "btn btn--ghost", onClick: (e) => { e.stopPropagation(); flipMusicCard(); } }, ["Reveal answer ↓"]),
+  ]);
+}
+
+// Shared with the front button so the label/state is NEVER out of sync with
+// reality — e.g. if the track is already playing when the user flips to the
+// back, this reads "Pause", not a stale "Play again".
+function miniPlaybackLabel(state) {
+  if (SpotifyPlayer.isFallback()) return "Use the player above";
+  if (state.status === "playing") return "⏸ Pause";
+  if (state.status === "connecting") return "Preparing…";
+  if (state.status === "paused") return "▶ Resume";
+  if (state.status === "error") return "⚠ Retry";
+  return "▶ Play again";
+}
+
+function renderCardBack(tune) {
+  const state = SpotifyPlayer.getStateFor(tune.spotify.trackId);
+  return h("div", { class: "audio-face audio-face--back" }, [
+    h("div", { class: "audio-face__eyebrow" }, ["ANSWER"]),
+    h("div", { class: "audio-face__name" }, [tune.name]),
+    h("div", { class: "audio-meta-grid" }, [
+      metaCell("Time signature", tune.timeSignature),
+      metaCell("Step", `${tune.stepBars} bars`),
+      metaCell("Set", `${tune.setBars} bars`),
+      metaCell("Tune type", tune.tuneType),
+    ]),
+    SpotifyPlayer.isFallback() ? null : h("button", {
+      class: "mini-btn", disabled: state.status === "connecting",
+      onClick: (e) => { e.stopPropagation(); toggleMusicPlayback(tune); },
+    }, [miniPlaybackLabel(state)]),
+    h("button", { class: "btn btn--ghost", style: "margin-top:4px;", onClick: (e) => { e.stopPropagation(); flipMusicCard(); } }, ["← Hide answer"]),
+  ]);
+}
+
+function sessionControls() {
+  return h("div", { class: "btn-row", style: "justify-content:center; margin-top:18px;" }, [
+    h("button", { class: "btn btn--ghost", disabled: musicSession.index === 0, onClick: prevMusicCard }, ["← Previous"]),
+    h("button", { class: "btn btn--brass btn--big", onClick: nextMusicCard }, ["Next tune →"]),
+  ]);
+}
+
+function paintMusicCard(container) {
+  container = container || document.getElementById("audio-session");
+  if (!container) return; // user navigated away from Music Mode
+  container.innerHTML = "";
+  const tune = getCurrentTune();
+
+  container.appendChild(sessionProgressRow());
+
+  const card = h("div", { class: "audio-card", onClick: () => flipMusicCard() }, [
+    musicSession.flipped ? renderCardBack(tune) : renderCardFront(tune),
+  ]);
+  container.appendChild(card);
+  container.appendChild(sessionControls());
+}
+
+function flipMusicCard() {
+  musicSession.flipped = !musicSession.flipped;
+  paintMusicCard();
+}
+
+function nextMusicCard() {
+  SpotifyPlayer.pause();
+  musicSession.index = (musicSession.index + 1) % musicSession.deck.length;
+  musicSession.flipped = false;
+  paintMusicCard();
+  preloadCurrentCard();
+}
+
+function prevMusicCard() {
+  if (musicSession.index === 0) return;
+  SpotifyPlayer.pause();
+  musicSession.index -= 1;
+  musicSession.flipped = false;
+  paintMusicCard();
+  preloadCurrentCard();
+}
+
+// Load whichever card is now on screen into the (single, reused) Spotify
+// controller ahead of time, without playing it — so if/when the user
+// presses Play, it's usually already loaded and only needs to start.
+function preloadCurrentCard() {
+  const tune = musicSession.deck[musicSession.index];
+  if (tune && tune.spotify) SpotifyPlayer.preload(tune.spotify.trackId);
+}
+
+// Repaint whenever real playback state changes (e.g. Spotify reports the
+// track actually started), regardless of what triggered it — this is what
+// keeps the UI honest rather than assuming a click succeeded.
+SpotifyPlayer.onChange(() => { paintMusicCard(); paintQuizAudioPlayer(); });
+
+function statusPill(status) {
+  const map = {
+    "matched-exact": ["Matched", "status-pill--exact"],
+    "matched-fuzzy": ["Matched (check)", "status-pill--fuzzy"],
+    "unmatched": ["Unmatched", "status-pill--unmatched"],
+  };
+  const [label, cls] = map[status] || ["Unknown", "status-pill--unmatched"];
+  return h("span", { class: "status-pill " + cls }, [label]);
+}
+
+function spotifyEmbed(trackId) {
+  return h("div", { class: "embed-wrap" }, [
+    h("iframe", {
+      src: `https://open.spotify.com/embed/track/${trackId}`,
+      width: "100%", height: "80", frameborder: "0",
+      allow: "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture",
+      loading: "lazy",
+    }, []),
+  ]);
+}
+
+let musicFilter = "all";
+
+function renderMusicBrowse() {
+  const data = getMusicData();
+  const filtered = musicFilter === "all" ? data
+    : musicFilter === "unmatched" ? data.filter(t => t.matchStatus === "unmatched")
+    : data.filter(t => t.tuneType === musicFilter);
+
+  const tuneTypes = [...new Set(data.map(t => t.tuneType))];
+
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb("Music Mode / Browse"),
+      h("h1", { class: "page-title" }, ["All set-dance tunes"]),
+      p_lede("Names and bar counts come from the reference document; press ▶ to hear the matched Spotify track."),
+      musicModeMenu("browse"),
+      h("div", { class: "filter-bar" }, [
+        h("button", { class: "filter-chip", "aria-pressed": String(musicFilter === "all"), onClick: () => { musicFilter = "all"; renderMusicBrowse(); } }, ["All"]),
+        ...tuneTypes.map(tt => h("button", { class: "filter-chip", "aria-pressed": String(musicFilter === tt), onClick: () => { musicFilter = tt; renderMusicBrowse(); } }, [tt])),
+        h("button", { class: "filter-chip", "aria-pressed": String(musicFilter === "unmatched"), onClick: () => { musicFilter = "unmatched"; renderMusicBrowse(); } }, ["Unmatched only"]),
+      ]),
+      h("div", { class: "table-scroll" }, [
+        h("table", { class: "tunes" }, [
+          h("thead", {}, [h("tr", {}, [
+            h("th", {}, ["Name"]), h("th", {}, ["Type"]), h("th", {}, ["Time sig."]),
+            h("th", {}, ["Step"]), h("th", {}, ["Set"]), h("th", {}, ["Audio"]),
+          ])]),
+          h("tbody", {}, filtered.map(t => h("tr", {}, [
+            h("td", { class: "name" }, [t.name]),
+            h("td", {}, [t.tuneType]),
+            h("td", {}, [t.timeSignature]),
+            h("td", {}, [String(t.stepBars)]),
+            h("td", {}, [String(t.setBars)]),
+            h("td", {}, [t.spotify
+              ? h("button", { class: "play-btn", onClick: (e) => togglePlay(e, t) }, ["▶ Play"])
+              : statusPill("unmatched")]),
+          ]))),
+        ]),
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+function togglePlay(e, tune) {
+  const cell = e.target.closest("td");
+  if (cell.querySelector("iframe")) { cell.innerHTML = ""; cell.appendChild(e.target); return; }
+  cell.innerHTML = "";
+  cell.appendChild(spotifyEmbed(tune.spotify.trackId));
+}
+
+// ---------- Music quiz ----------
+
+let musicQuizState = null;
+
+function renderMusicQuiz() {
+  if (!musicQuizState || musicQuizState.index >= musicQuizState.questions.length) {
+    return renderMusicQuizIntro();
+  }
+  renderMusicQuizQuestion();
+}
+
+function renderMusicQuizIntro() {
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb("Music Mode / Quiz"),
+      h("h1", { class: "page-title" }, ["Tune knowledge quiz"]),
+      p_lede("Metadata questions (time signature, step & set bars, tune type) plus listen-and-identify questions for tunes with a matched track."),
+      musicModeMenu("quiz"),
+      h("div", { class: "btn-row" }, [
+        h("button", { class: "btn", onClick: () => { musicQuizState = { questions: Quiz.generateMusicQuiz(getMusicData(), 12, false), index: 0, score: 0, answered: false }; router(); } }, ["Start metadata quiz (12 Qs)"]),
+        h("button", { class: "btn btn--brass", onClick: () => { musicQuizState = { questions: Quiz.generateMusicQuiz(getMusicData(), 10, true), index: 0, score: 0, answered: false }; router(); } }, ["Start listen-and-identify quiz"]),
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+// Title-free playback control for the Metadata Quiz's listen-and-identify
+// questions. Deliberately does NOT reuse spotifyEmbed() (see comment at its
+// call site) — instead drives the same hidden, off-screen SpotifyPlayer
+// controller already used by Listen & Identify, with our own custom button
+// that never displays the track name anywhere (not in text, not in a title
+// attribute, not in an aria-label — the button's accessible name is always
+// the generic "Play"/"Pause", identical to the front of a Listen & Identify
+// flashcard before it's flipped).
+function renderQuizAudioPlayer(trackId) {
+  const container = h("div", { id: "quiz-audio-player" }, []);
+  container.dataset.trackId = trackId;
+  paintQuizAudioPlayer(container);
+  return container;
+}
+
+function paintQuizAudioPlayer(container) {
+  container = container || document.getElementById("quiz-audio-player");
+  if (!container) return;
+  const trackId = container.dataset.trackId;
+  container.innerHTML = "";
+
+  if (SpotifyPlayer.isFallback()) {
+    // Honest limitation, not a silent failure: Spotify's plain oEmbed
+    // widget (the only fallback when the enhanced-controls script can't
+    // load) always shows its own track title as part of Spotify's UI —
+    // there is no supported way to suppress that in the basic embed.
+    // Playback still works; we just can't promise the title stays hidden
+    // in this specific fallback scenario.
+    container.appendChild(h("div", { class: "quiz-audio-fallback-note" }, [
+      "Note: the title-free player isn't available right now, so this question falls back to Spotify's standard embed below — which may show the track name. Playback still works normally."
+    ]));
+    container.appendChild(spotifyEmbed(trackId));
+    return;
+  }
+
+  const state = SpotifyPlayer.getStateFor(trackId);
+  const btn = h("button", {
+    class: "audio-playbtn quiz-playbtn"
+      + (state.status === "playing" ? " audio-playbtn--playing" : "")
+      + (state.status === "error" ? " audio-playbtn--error" : ""),
+    "aria-label": state.status === "playing" ? "Pause" : state.status === "error" ? "Retry" : "Play",
+    disabled: state.status === "connecting",
+    onClick: (e) => { e.stopPropagation(); toggleQuizPlayback(trackId); },
+  }, []);
+  btn.innerHTML = playIconSvg(state.status);
+
+  container.appendChild(h("div", { class: "quiz-audio-player" }, [
+    btn,
+    h("div", { class: "quiz-audio-player__status" }, [playbackStatusLabel(state)]),
+  ]));
+}
+
+function toggleQuizPlayback(trackId) {
+  const state = SpotifyPlayer.getStateFor(trackId);
+  if (state.status === "playing") SpotifyPlayer.pause();
+  else if (state.status === "error") SpotifyPlayer.retry(trackId);
+  else SpotifyPlayer.play(trackId);
+}
+
+function renderMusicQuizQuestion() {
+  const state = musicQuizState;
+  if (!state.questions.length) {
+    return mount(h("div", {}, [topbar(), page([
+      crumb("Music Mode / Quiz"),
+      h("div", { class: "empty-state" }, ["No tunes are matched to audio yet — add matches in Data Review, or try the metadata quiz instead."]),
+      h("button", { class: "btn", onClick: () => location.hash = "#/music/quiz" }, ["Back"]),
+    ]), footer()]));
+  }
+  const q = state.questions[state.index];
+
+  const body = [
+    h("div", { class: "quiz-progress" }, [
+      h("span", { class: "quiz-score" }, [`Question ${state.index + 1} of ${state.questions.length}`]),
+      h("span", { class: "quiz-score" }, [`Score: ${state.score}/${state.index}`]),
+    ]),
+    h("div", { class: "quiz-question" }, [q.prompt]),
+  ];
+  if (q.type === "audio-id") {
+    // IMPORTANT: never use spotifyEmbed() (Spotify's own branded oEmbed
+    // iframe) here — it always visually displays the track title/artist as
+    // part of Spotify's own UI, which would hand the answer straight to the
+    // user before they've guessed. Use the same title-free hidden-controller
+    // player already built for Listen & Identify instead (see
+    // renderQuizAudioPlayer below) — real playback, no title shown, because
+    // the controller iframe itself is never rendered on screen.
+    SpotifyPlayer.preload(q.meta.trackId);
+    body.push(renderQuizAudioPlayer(q.meta.trackId));
+  }
+  body.push(h("div", { class: "quiz-options", id: "music-options" }, q.options.map((opt, i) =>
+    h("button", { class: "quiz-option", disabled: state.answered, onClick: () => answerMusicQuiz(i) }, [opt])
+  )));
+  body.push(h("div", { id: "music-feedback" }, []));
+
+  mount(h("div", {}, [topbar(), page([crumb("Music Mode / Quiz"), ...body]), footer()]));
+}
+
+function answerMusicQuiz(chosenIndex) {
+  const state = musicQuizState;
+  const q = state.questions[state.index];
+  state.answered = true;
+  const correct = chosenIndex === q.correctIndex;
+  if (correct) state.score += 1;
+
+  const optionsWrap = document.getElementById("music-options");
+  Array.from(optionsWrap.children).forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correctIndex) btn.classList.add("quiz-option--correct");
+    else if (i === chosenIndex) btn.classList.add("quiz-option--wrong");
+  });
+
+  const feedback = document.getElementById("music-feedback");
+  feedback.innerHTML = "";
+  feedback.appendChild(h("div", { class: "quiz-feedback" }, [
+    correct ? h("strong", { class: "correct-text" }, ["Correct. "])
+            : h("span", {}, [h("strong", { class: "wrong-text" }, ["Not quite. "]), `Correct answer: ${q.options[q.correctIndex]}. `]),
+  ]));
+  feedback.appendChild(h("div", { class: "btn-row" }, [
+    h("button", { class: "btn", onClick: nextMusicQuizQuestion }, [
+      state.index + 1 < state.questions.length ? "Next question →" : "See results →"
+    ]),
+  ]));
+}
+
+function nextMusicQuizQuestion() {
+  SpotifyPlayer.pause(); // stop any audio-id playback before showing a new (possibly unrelated) question
+  musicQuizState.index += 1;
+  musicQuizState.answered = false;
+  if (musicQuizState.index >= musicQuizState.questions.length) {
+    Store.recordQuizResult("music", musicQuizState.score, musicQuizState.questions.length);
+    return renderMusicQuizSummary();
+  }
+  renderMusicQuizQuestion();
+}
+
+function renderMusicQuizSummary() {
+  const state = musicQuizState;
+  const pct = Math.round((state.score / state.questions.length) * 100);
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb("Music Mode / Quiz / Results"),
+      h("div", { class: "quiz-summary" }, [
+        h("div", {}, ["You scored"]),
+        h("div", { class: "quiz-summary__score" }, [`${state.score} / ${state.questions.length}`]),
+        h("div", {}, [`${pct}% this round`]),
+        h("div", { class: "btn-row", style: "justify-content:center;" }, [
+          h("button", { class: "btn", onClick: () => location.hash = "#/music/quiz" }, ["Back to quiz menu"]),
+        ]),
+      ]),
+    ]),
+    footer(),
+  ]));
+}
+
+// ---------- Music flashcards ----------
+
+// ---------- Music: Data Review (manual correction) ----------
+
+// MATCHING VALIDATION REPORT — exactly the mapping shape requested:
+// { referenceSong, spotifyTrack, matchConfidence, matchReason } for every
+// single song, computed fresh from the data (+ any user overrides) each
+// time Data Review is opened. This is the artifact of "review the matching
+// before displaying the app" — surfaced in the UI, not just done silently.
+function buildMatchingReport(musicData) {
+  const confidenceMap = { "matched-exact": "High", "matched-fuzzy": "Medium", "unmatched": "None" };
+  return musicData.map(t => ({
+    referenceSong: t.name,
+    spotifyTrack: t.spotify ? `${t.spotify.spotifyTitle} — ${t.spotify.artist || "unknown artist"}` : "(no candidate found)",
+    matchConfidence: confidenceMap[t.matchStatus] || "Unknown",
+    matchReason: t.matchNote || "",
+  }));
+}
+
+function renderMusicDataReview() {
+  const data = getMusicData();
+  const unmatched = data.filter(t => t.matchStatus === "unmatched");
+  const fuzzy = data.filter(t => t.matchStatus === "matched-fuzzy");
+
+  mount(h("div", {}, [
+    topbar(),
+    page([
+      crumb("Music Mode / Data Review"),
+      h("h1", { class: "page-title" }, ["Review & correct song matches"]),
+      p_lede("Reference-document data and Spotify audio are matched automatically where confident, and always left for you to confirm or fix here — nothing is guessed silently."),
+      musicModeMenu("review"),
+
+      h("div", { class: "section-block" }, [
+        h("div", { class: "section-block__title" }, [`Needs confirmation (${fuzzy.length})`]),
+        ...fuzzy.map(t => reviewRow(t)),
+        fuzzy.length === 0 ? h("div", { class: "empty-state" }, ["Nothing pending confirmation."]) : null,
+      ]),
+
+      h("div", { class: "section-block" }, [
+        h("div", { class: "section-block__title" }, [`Unmatched (${unmatched.length})`]),
+        h("p", { style: "color:#6b5c67; font-size:0.9rem; margin-top:-4px;" }, [MUSIC_SOURCE_META.note]),
+        ...unmatched.map(t => reviewRow(t)),
+        unmatched.length === 0 ? h("div", { class: "empty-state" }, ["Every tune is matched."]) : null,
+      ]),
+
+      renderMatchingReportSection(data),
+    ]),
+    footer(),
+  ]));
+}
+
+function renderMatchingReportSection(data) {
+  const report = buildMatchingReport(data);
+  const container = h("div", { class: "section-block" }, []);
+  const title = h("div", {
+    class: "section-block__title", style: "cursor:pointer; display:flex; align-items:center; gap:8px;",
+  }, [`Full matching report (${report.length} songs) — click to expand`]);
+  const body = h("div", { style: "display:none;" }, [
+    h("p", { style: "color:#6b5c67; font-size:0.85rem;" }, [
+      "Every reference-document song mapped to its Spotify candidate before this app is shown to you, exactly as: { referenceSong, spotifyTrack, matchConfidence, matchReason }."
+    ]),
+    h("table", { class: "tunes" }, [
+      h("thead", {}, [h("tr", {}, [
+        h("th", {}, ["referenceSong"]), h("th", {}, ["spotifyTrack"]), h("th", {}, ["matchConfidence"]), h("th", {}, ["matchReason"]),
+      ])]),
+      h("tbody", {}, report.map(r => h("tr", {}, [
+        h("td", { class: "name" }, [r.referenceSong]),
+        h("td", { style: "font-family:var(--font-mono); font-size:0.82rem;" }, [r.spotifyTrack]),
+        h("td", {}, [h("span", { class: "status-pill " + (r.matchConfidence === "High" ? "status-pill--exact" : r.matchConfidence === "Medium" ? "status-pill--fuzzy" : "status-pill--unmatched") }, [r.matchConfidence])]),
+        h("td", { style: "font-size:0.85rem; color:#6b5c67;" }, [r.matchReason]),
+      ]))),
+    ]),
+  ]);
+  title.addEventListener("click", () => { body.style.display = body.style.display === "none" ? "block" : "none"; });
+  container.appendChild(title);
+  container.appendChild(body);
+  return container;
+}
+
+function reviewRow(tune) {
+  const wrap = h("div", { class: "card" }, []);
+  paintReviewRow(wrap, tune);
+  return wrap;
+}
+
+function paintReviewRow(wrap, tune) {
+  wrap.innerHTML = "";
+  wrap.appendChild(h("div", { style: "display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;" }, [
+    h("div", {}, [
+      h("strong", { style: "font-family:var(--font-display); color:var(--plum-deep);" }, [tune.name]),
+      h("div", { style: "font-size:0.82rem; color:#6b5c67;" }, [tune.matchNote || ""]),
+      tune.spotify ? h("div", { style: "font-size:0.8rem; font-family:var(--font-mono); color:#8a7a86; margin-top:4px;" }, [
+        `Spotify: "${tune.spotify.spotifyTitle}" — ${tune.spotify.artist}`
+      ]) : null,
+    ]),
+    statusPill(tune.matchStatus),
+  ]));
+
+  if (tune.spotify) wrap.appendChild(spotifyEmbed(tune.spotify.trackId));
+
+  const input = h("input", { placeholder: "Paste Spotify track URL or ID…", value: "" });
+  const controls = h("div", { class: "review-controls", style: "margin-top:10px;" }, [
+    tune.matchStatus === "matched-fuzzy"
+      ? h("button", { class: "mini-btn", onClick: () => {
+          Store.setMusicOverride(tune.id, { matchStatus: "matched-exact", matchNote: "Manually confirmed by user." });
+          paintReviewRow(wrap, Object.assign({}, tune, { matchStatus: "matched-exact" }));
+        }}, ["✓ Confirm this match"])
+      : null,
+    tune.spotify
+      ? h("button", { class: "mini-btn", onClick: () => {
+          Store.setMusicOverride(tune.id, { spotify: null, matchStatus: "unmatched", matchNote: "Manually cleared by user." });
+          paintReviewRow(wrap, Object.assign({}, tune, { spotify: null, matchStatus: "unmatched" }));
+        }}, ["✕ Clear match"])
+      : null,
+    input,
+    h("button", { class: "mini-btn", onClick: () => {
+      const raw = input.value.trim();
+      const idMatch = raw.match(/track\/([a-zA-Z0-9]+)/) || raw.match(/^([a-zA-Z0-9]{10,})$/);
+      if (!idMatch) { input.style.borderColor = "var(--thread)"; return; }
+      const trackId = idMatch[1];
+      const override = { spotify: { trackId, spotifyTitle: "(manually linked)", artist: "" }, matchStatus: "matched-exact", matchNote: "Manually linked by user." };
+      Store.setMusicOverride(tune.id, override);
+      paintReviewRow(wrap, Object.assign({}, tune, override));
+    }}, ["Link track"]),
+  ]);
+  wrap.appendChild(controls);
+}
+
+</script>
+
+</body>
+</html>
